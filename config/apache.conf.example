@@ -1,0 +1,24 @@
+# Apache (XAMPP) snippet that serves this project's public/ folder at
+# http://localhost/devexpertai/
+#
+# Setup (manual, changes shared XAMPP config):
+#   1. Copy this file to config/apache.conf (git-ignored).
+#   2. Replace <PROJECT_ROOT> below with the absolute repo path using forward
+#      slashes, e.g. C:/Users/<you>/Desktop/mgl/Dev/devexpertai-project
+#   3. Add this line at the end of C:/xampp/apache/conf/extra/httpd-vhosts.conf:
+#        Include "<PROJECT_ROOT>/config/apache.conf"
+#   4. Check the syntax: C:/xampp/apache/bin/httpd.exe -t
+#   5. Restart Apache from the XAMPP Control Panel.
+#   6. Open http://localhost/devexpertai/ and run
+#        curl -s -X POST -d '{}' http://localhost/devexpertai/api/
+#
+# Only public/ is exposed; src/, config/, tests/ and db/ stay outside the web root.
+
+Alias /devexpertai "<PROJECT_ROOT>/public"
+
+<Directory "<PROJECT_ROOT>/public">
+    Options -Indexes +FollowSymLinks
+    AllowOverride All
+    Require local
+    DirectoryIndex index.html index.php
+</Directory>

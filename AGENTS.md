@@ -14,6 +14,8 @@ Read these only when relevant:
 - `docs/technical-discovery.md`: when touching the API, auth, the AI connector, the MCP server, configuration, testing or logging.
 - `docs/adr/`: before changing how the AI loop, the MCP or LLM providers work.
 - `DESIGN.md`: when touching any UI.
+- `ARCHITECTURE.md`: directory layout, web root, autoloading, serving modes, config loading.
+- `CONSTRAINTS.md`: MUST / MUST NOT rules every feature has to respect.
 
 ## Startup Workflow
 
@@ -21,9 +23,11 @@ Before writing code:
 
 1. Confirm the working directory with `pwd`.
 2. Read `PROGRESS.md` for the current verified state and the next step.
-3. Read `feature_list.json` and pick the first unfinished feature, in list order, whose `depends_on` features are all `passing`.
-4. Run `./init.sh` (Git Bash on Windows).
+3. Read `feature_list.json` and pick the first unfinished feature, in list order, whose `depends_on` features are all `accepted` (`passing` means self-verified only; acceptance comes from the independent validator).
+4. Run `./init.sh` (Git Bash on Windows). It is the real gate: PHP syntax check of all project files plus `php tests/run.php`; it exits non-zero on any failure and starts no long-running process.
 5. If baseline verification fails, fix the baseline before adding new feature work.
+6. If `config/config.php` is missing (the gate warns), copy `config/config.example.php` to it and fill in local values. It is git-ignored.
+7. To see the app: `php -S 127.0.0.1:8080 -t public` and open `http://127.0.0.1:8080/`. XAMPP Apache serves it at `http://localhost/devexpertai/` once the snippet in `config/apache.conf.example` is included (manual step).
 
 ## Working Rules
 

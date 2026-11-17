@@ -2,3 +2,5 @@
 * text=auto
 # Shell scripts must keep LF so bash can run them on Windows checkouts.
 *.sh text eol=lf
+# Vendored third-party files stay byte-for-byte as downloaded (SHA-256 in SOURCE.txt).
+/public/assets/vendor/** -text

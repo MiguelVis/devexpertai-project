@@ -51,11 +51,13 @@ The PHP backend runs the agent loop; see [ADR 0001](adr/0001-php-backend-runs-ag
 
 ## Deployment and Operations
 
-Local only: Windows + XAMPP. LLM API keys, the MCP API key, the service account credentials and the DB credentials live in a configuration file kept out of git. Hosting, PWA and an HTTP MCP transport are deferred decisions.
+Local only: Windows + XAMPP. LLM API keys, the MCP API key, the service account credentials and the DB credentials live in a configuration file kept out of git (`config/config.php`, copied from the committed `config/config.example.php`). Hosting, PWA and an HTTP MCP transport are deferred decisions.
+
+Serving (decided in `bootstrap-project-skeleton`, see `ARCHITECTURE.md`): only `public/` is the web root. Dev and automated checks use `php -S 127.0.0.1:8080 -t public`; XAMPP Apache serves the same folder at `http://localhost/devexpertai/` through an `Alias` snippet (`config/apache.conf.example`, copied to the git-ignored `config/apache.conf` and included from `httpd-vhosts.conf`). The frontend uses relative URLs only.
 
 ## Testing and Verification
 
-- Plain PHP test scripts for lifecycle rules, ID validation and auth. No test framework, unless PHPUnit is accepted as a dev-only exception (open question).
+- Plain PHP test scripts for lifecycle rules, ID validation and auth, run by `php tests/run.php` (decided; PHPUnit not approved). Test files are `tests/**/*_test.php` returning `array<string, callable>` and use `tests/lib/assert.php`, not `assert()`. `./init.sh` runs a PHP syntax check plus the runner.
 - An evaluation script that runs the ~20 sample descriptions through the inference endpoint and reports field accuracy, invalid IDs and latency.
 - A manual end-to-end check of the MVP slice on a mobile viewport.
 

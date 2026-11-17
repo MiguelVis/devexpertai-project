@@ -1,0 +1,10 @@
+W3.CSS (vendored, unmodified)
+
+Source URL:   https://www.w3schools.com/w3css/5/w3.css
+Version line: /* W3.CSS 5.01 March 11 2026 by Jan Egil and Borge Refsnes */
+Downloaded:   2026-11-17 (curl with a browser User-Agent; the site returns 403 to curl's default User-Agent)
+Size:         24743 bytes (starts with a UTF-8 BOM, LF line endings)
+SHA-256:      702af7dd8f2a18c566eead0add596d880f05e1d92b096d1cf07f129288b143c0  w3.css
+
+Do not edit w3.css. Put app styles in a separate stylesheet.
+To verify: sha256sum public/assets/vendor/w3css/w3.css

@@ -5,14 +5,25 @@
     "title": "Runnable project skeleton with config and test runner",
     "user_visible_behavior": "XAMPP serves an empty frontend page and an API entry point; a git-ignored config file (copied from a committed example) holds DB, LLM, MCP and service-account settings; `php tests/run.php` runs and reports zero failures.",
     "depends_on": [],
-    "status": "not_started",
+    "status": "accepted",
     "verification": [
       "./init.sh runs the real syntax check and test runner and exits 0",
       "Config file is listed in .gitignore and only the example is tracked",
       "Opening the frontend URL in XAMPP returns the placeholder page"
     ],
-    "evidence": [],
-    "notes": "Replace the pre-bootstrap init.sh with real commands. No Composer/npm. Decide plain PHP test scripts unless PHPUnit is approved (docs/risks-and-open-questions.md)."
+    "evidence": [
+      "2026-11-17 ./init.sh (no config/config.php): PHP 8.2.0; 'Syntax check: 10 files, 0 errors'; '14 tests, 0 failures'; config warning printed; exit 0. Also exit 0 with config/config.php present.",
+      "2026-11-17 php tests/run.php: 14 PASS lines, '14 tests, 0 failures', exit 0; 'php tests/run.php serving' runs 1 test, exit 0.",
+      "2026-11-17 failure paths (temp files, removed): failing test -> 'FAIL tests/zz_tmp_fail_test.php :: deliberate failure: Expected 1, got 2', runner exit 1, ./init.sh exit 1; file returning 42 -> 'file does not return an array of tests', exit 1; filter matching nothing -> '0 tests, 0 failures' 'No tests found.', exit 1; parse error in src/zz_tmp_parse_error.php -> ./init.sh prints 'SYNTAX ERROR: ./src/zz_tmp_parse_error.php', 'Syntax check: 11 files, 1 errors', exit 1.",
+      "2026-11-17 serving test (array-form proc_open, free port): GET / 200 with data-app + relative w3.css href; GET w3.css 200 contains 'W3.CSS 5.01'; POST /api/ {} 200 application/json {\"ok\":true,\"service\":\"hotel-maintenance-api\"}. tasklist shows no php.exe afterwards.",
+      "2026-11-17 manual php -S smoke via curl: POST /api/ -> 'HTTP/1.1 200 OK', 'Content-Type: application/json; charset=utf-8', {\"ok\":true,\"service\":\"hotel-maintenance-api\"}; GET / -> placeholder HTML; w3.css 200 24743 bytes; /../config/config.example.php -> 404.",
+      "2026-11-17 config: after cp config/config.example.php config/config.php, 'git check-ignore -v' -> '.gitignore:2:/config/config.php'; 'git ls-files --others --exclude-standard config' -> only config/apache.conf.example and config/config.example.php (config/apache.conf ignored by .gitignore:3). config/config.php removed afterwards.",
+      "W3.CSS 5.01 from https://www.w3schools.com/w3css/5/w3.css, 24743 bytes, SHA-256 702af7dd8f2a18c566eead0add596d880f05e1d92b096d1cf07f129288b143c0 (SOURCE.txt); unmodified; vendor path is -text in .gitattributes.",
+      "init.sh: LF, git index mode 100755, set -euo pipefail, no long-running process.",
+      "2026-11-17 XAMPP Apache (Scenario 4): Include step done by the orchestrator with user approval (config/apache.conf from the example, Include appended to httpd-vhosts.conf after backup, httpd -t Syntax OK, Apache restarted 14:08). Orchestrator: GET http://localhost/devexpertai/ 200; POST /devexpertai/api/ 200 {\"ok\":true,\"service\":\"hotel-maintenance-api\"}; http://localhost/ and hs.nethits.com still 302. Implementer re-check (read-only): GET /devexpertai/ 200; POST /devexpertai/api/ 200 'application/json; charset=utf-8'; GET /devexpertai/assets/vendor/w3css/w3.css 200 24743 bytes.",
+      "2026-11-17 independent validator verdict: accept. Re-ran init.sh (10 files, 14 tests, exit 0), failure paths, php -S and XAMPP smokes, config ignore, W3.CSS hash vs fresh upstream. Record in PROGRESS.md."
+    ],
+    "notes": "Implemented and self-verified; ready for independent validation (not accepted). Plain PHP test runner decided; PHPUnit not approved. Not done: visual browser check of the placeholder at 360px width (no browser in the implementer session). See docs/specs/bootstrap-project-skeleton.md Implementation Notes for the .gitattributes addition."
   },
   {
     "id": "db-schema",

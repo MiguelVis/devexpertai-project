@@ -1,0 +1,13 @@
+# Local secrets and machine-specific config (copy from the *.example files).
+/config/config.php
+/config/apache.conf
+
+# Runtime output.
+/logs/
+*.log
+/tmp/
+
+# OS clutter.
+Thumbs.db
+desktop.ini
+.DS_Store

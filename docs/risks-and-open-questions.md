@@ -7,9 +7,12 @@ None. Discovery is sufficient to plan the MVP slice. The first research task bel
 ## Implementation-Time Questions
 
 - **Token lifetime:** *initial stance:* 8 hours, with no refresh. Logging in again issues a new token.
-- **Test tooling:** are plain PHP test scripts enough, or is PHPUnit allowed as a dev-only exception to the "no dependencies" rule?
 - **Editable fields:** which work order fields can a manual edit change? *Initial stance:* everything except creator, created at and description.
 - **Seed data:** who writes the realistic typology tree and the locations used in the evaluation set?
+
+## Resolved
+
+- **Test tooling** (decided in `bootstrap-project-skeleton`): plain PHP test scripts run by `php tests/run.php`. PHPUnit is not approved.
 
 ## Later / Not MVP
 
