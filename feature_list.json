@@ -1,0 +1,514 @@
+[
+  {
+    "id": "bootstrap-project-skeleton",
+    "area": "bootstrap",
+    "title": "Runnable project skeleton with config and test runner",
+    "user_visible_behavior": "XAMPP serves an empty frontend page and an API entry point; a git-ignored config file (copied from a committed example) holds DB, LLM, MCP and service-account settings; `php tests/run.php` runs and reports zero failures.",
+    "depends_on": [],
+    "status": "not_started",
+    "verification": [
+      "./init.sh runs the real syntax check and test runner and exits 0",
+      "Config file is listed in .gitignore and only the example is tracked",
+      "Opening the frontend URL in XAMPP returns the placeholder page"
+    ],
+    "evidence": [],
+    "notes": "Replace the pre-bootstrap init.sh with real commands. No Composer/npm. Decide plain PHP test scripts unless PHPUnit is approved (docs/risks-and-open-questions.md)."
+  },
+  {
+    "id": "db-schema",
+    "area": "data",
+    "title": "Database schema for the domain model",
+    "user_visible_behavior": "Running db/schema.sql creates tables for users, tokens, work orders, status history, typologies L1/L2/L3 (L3 with default priority), locations, location types and the AI Prefill log.",
+    "depends_on": [
+      "bootstrap-project-skeleton"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Schema script runs twice on MariaDB without errors (idempotent or drop-and-create)",
+      "Foreign keys enforce L3→L2→L1 parents, work order→location/typology/users"
+    ],
+    "evidence": [],
+    "notes": "Source: docs/domain-model.md. Users have an is_service_account flag. Status and priority values in Spanish per CONTEXT.md."
+  },
+  {
+    "id": "db-seed-data",
+    "area": "data",
+    "title": "Realistic seed data for one hotel",
+    "user_visible_behavior": "Running db/seed.sql loads location types, a flat list of hotel locations, a typology tree with default priorities, a few technicians and the MCP service account.",
+    "depends_on": [
+      "db-schema"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Seed loads after schema without errors",
+      "Query confirms every L3 has a default priority and every location has a type",
+      "Passwords are stored as password_hash values"
+    ],
+    "evidence": [],
+    "notes": "Open question: who authors the realistic typology tree. Seed must support the evaluation scenarios (room numbers, Piscina, named technicians, duplicate first names)."
+  },
+  {
+    "id": "api-post-json-router",
+    "area": "api",
+    "title": "API router accepts only POST JSON requests",
+    "user_visible_behavior": "Requests to /api/<endpoint> are routed by name; non-POST methods and unknown endpoints get a consistent JSON error with the right HTTP status.",
+    "depends_on": [
+      "bootstrap-project-skeleton"
+    ],
+    "status": "not_started",
+    "verification": [
+      "curl GET returns 405 JSON error; unknown endpoint returns 404 JSON error",
+      "Test script covers both cases"
+    ],
+    "evidence": [],
+    "notes": "No framework. Define the single error response shape here and reuse it everywhere."
+  },
+  {
+    "id": "api-login",
+    "area": "auth",
+    "title": "User logs in and receives a token",
+    "user_visible_behavior": "POST /login with valid username and password returns a random token with an expiry; wrong credentials return a 401 JSON error.",
+    "depends_on": [
+      "api-post-json-router",
+      "db-seed-data"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test: valid seed credentials return a token stored server-side with expiry",
+      "Test: wrong password returns 401 and creates no token"
+    ],
+    "evidence": [],
+    "notes": "Initial stance: 8h lifetime, no refresh. Never log passwords."
+  },
+  {
+    "id": "api-token-guard",
+    "area": "auth",
+    "title": "Protected endpoints reject missing or expired tokens",
+    "user_visible_behavior": "Any endpoint except /login returns 401 JSON when the token is missing, unknown or expired, and receives the authenticated user when valid.",
+    "depends_on": [
+      "api-login"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Tests for missing, unknown, expired and valid tokens against a protected test endpoint"
+    ],
+    "evidence": [],
+    "notes": "Service-account tokens are limited to the read endpoints the MCP needs (docs/technical-discovery.md)."
+  },
+  {
+    "id": "api-location-catalog",
+    "area": "api",
+    "title": "Location catalog endpoints return seeded locations",
+    "user_visible_behavior": "POST /get-location-types and POST /get-locations return the seeded types and locations (each with its type) for an authenticated user.",
+    "depends_on": [
+      "api-token-guard"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test: both endpoints return seed data with a valid token and 401 without"
+    ],
+    "evidence": [],
+    "notes": "Flat list, one hotel."
+  },
+  {
+    "id": "api-typology-catalog",
+    "area": "api",
+    "title": "Typology endpoints return each level filtered by parent",
+    "user_visible_behavior": "POST /get-level-1-typologies returns all L1; /get-level-2-typologies and /get-level-3-typologies return children of a given parent id, with L3 including its default priority.",
+    "depends_on": [
+      "api-token-guard"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test: L2 filtered by L1 id and L3 filtered by L2 id match seed data",
+      "Test: unknown parent id returns an empty list or a validation error consistently"
+    ],
+    "evidence": [],
+    "notes": "Used by the cascading selects and by the MCP tools."
+  },
+  {
+    "id": "api-get-users",
+    "area": "api",
+    "title": "Assignable users endpoint excludes service accounts",
+    "user_visible_behavior": "POST /get-users returns users (id, first name, last names) that can be assignees; service accounts never appear.",
+    "depends_on": [
+      "api-token-guard"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test: seeded technicians are returned, the MCP service account is not"
+    ],
+    "evidence": [],
+    "notes": "Needed by the assignee select and the MCP; pulled into the MVP although the brief listed it as low priority."
+  },
+  {
+    "id": "api-create-work-order",
+    "area": "work-orders",
+    "title": "Create a validated work order with initial status history",
+    "user_visible_behavior": "POST /create-work-order saves a work order with creator from the token, validated location/L3 typology/assignee, priority (L3 default unless provided), status Asignado if assigned else Pendiente, and writes the first status history entry.",
+    "depends_on": [
+      "api-location-catalog",
+      "api-typology-catalog",
+      "api-get-users"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test: with assignee → Asignado; without → Pendiente; one history entry each",
+      "Test: unknown location/typology/user ids or a service-account assignee are rejected",
+      "Test: omitted priority falls back to the L3 default, provided priority is kept"
+    ],
+    "evidence": [],
+    "notes": "L1/L2 are derived from L3 (docs/domain-model.md)."
+  },
+  {
+    "id": "api-get-work-orders",
+    "area": "work-orders",
+    "title": "List work orders newest first",
+    "user_visible_behavior": "POST /get-work-orders returns work orders with location, L3 typology, status, priority, assignee name and creation date, newest first.",
+    "depends_on": [
+      "api-create-work-order"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test: created orders appear newest first with resolved display names"
+    ],
+    "evidence": [],
+    "notes": "Pagination/filtering not required for the PoC."
+  },
+  {
+    "id": "api-get-work-order",
+    "area": "work-orders",
+    "title": "Read one work order with its status history",
+    "user_visible_behavior": "POST /get-work-order returns all fields of one work order including L1/L2/L3, creator, assignee, full description and the ordered status history.",
+    "depends_on": [
+      "api-create-work-order"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test: returns full detail and history for an existing id; 404 JSON for unknown id"
+    ],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "api-get-work-orders-summary",
+    "area": "work-orders",
+    "title": "Dashboard summary counts work orders",
+    "user_visible_behavior": "POST /get-work-orders-summary returns the count of work orders per status (all five, zeros included) and the count of open (not Resuelto/Cancelado) work orders per priority (Alta, Media, Baja).",
+    "depends_on": [
+      "api-create-work-order"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test: after creating orders in known statuses/priorities, counts match; statuses and priorities with no orders return 0",
+      "Test: closed orders are excluded from the priority counts"
+    ],
+    "evidence": [],
+    "notes": "Feeds the dashboard home screen (MVP)."
+  },
+  {
+    "id": "spike-llm-tool-calling",
+    "area": "ai",
+    "title": "Spike: tool calling round-trips on both LLM providers",
+    "user_visible_behavior": "A throwaway PHP script sends one Anthropic Messages request with a tool definition to the Anthropic API and to DevExpert inference, returns a tool_result, and prints the final answer.",
+    "depends_on": [
+      "bootstrap-project-skeleton"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Script output saved as evidence for each provider: tool_use received, tool_result accepted, final text returned",
+      "Result (works / fails / caveats) recorded in docs/risks-and-open-questions.md"
+    ],
+    "evidence": [],
+    "notes": "Highest risk: tool calling is undocumented on DevExpert (docs/risks-and-open-questions.md). Uses cURL only. Consumes DevExpert quota."
+  },
+  {
+    "id": "spike-stdio-subprocess-windows",
+    "area": "mcp",
+    "title": "Spike: PHP drives a stdio child process on XAMPP Windows",
+    "user_visible_behavior": "A throwaway PHP script starts a child PHP process with proc_open, exchanges newline-delimited JSON messages over stdin/stdout, and shuts it down cleanly with no orphan process.",
+    "depends_on": [
+      "bootstrap-project-skeleton"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Script run on XAMPP PHP exchanges 3 request/response pairs and exits; Task Manager shows no leftover php.exe"
+    ],
+    "evidence": [],
+    "notes": "Risk: Windows pipe buffering and blocking reads. Findings recorded in docs/risks-and-open-questions.md."
+  },
+  {
+    "id": "mcp-server-handshake",
+    "area": "mcp",
+    "title": "MCP server completes initialize and lists tools",
+    "user_visible_behavior": "Running `php mcp/server.php` with the correct MCP API key answers initialize and tools/list over stdio JSON-RPC; with a missing or wrong key it exits with an error.",
+    "depends_on": [
+      "spike-stdio-subprocess-windows"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test pipes initialize + tools/list into the server and checks the JSON-RPC responses",
+      "Test: wrong key exits non-zero without serving"
+    ],
+    "evidence": [],
+    "notes": "No libraries. Key passed via environment variable by the connector (ADR 0001)."
+  },
+  {
+    "id": "mcp-read-tools",
+    "area": "mcp",
+    "title": "MCP tools return hotel data through the API",
+    "user_visible_behavior": "tools/call for list locations, list typologies (by level and parent) and list assignable users returns data fetched from the API with the service-account login.",
+    "depends_on": [
+      "mcp-server-handshake",
+      "api-location-catalog",
+      "api-typology-catalog",
+      "api-get-users"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test pipes tools/call requests and compares results with seed data",
+      "Test: no write tool is exposed"
+    ],
+    "evidence": [],
+    "notes": "Read-only. A work-order read tool is optional for the PoC."
+  },
+  {
+    "id": "ai-messages-adapter",
+    "area": "ai",
+    "title": "Configurable Anthropic Messages provider adapter",
+    "user_visible_behavior": "The AI connector sends a Messages request (with tools) to the provider selected in config (base URL, key, model) and returns parsed content blocks; switching provider requires only a config change.",
+    "depends_on": [
+      "spike-llm-tool-calling"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test with a stubbed HTTP transport: request shape and headers match the Messages format; tool_use blocks are parsed",
+      "Manual: one real call per configured provider succeeds"
+    ],
+    "evidence": [],
+    "notes": "Behind a provider interface so an OpenAI-compatible adapter can be added later. Never log keys."
+  },
+  {
+    "id": "ai-agent-loop",
+    "area": "ai",
+    "title": "Agent loop relays tool calls between LLM and MCP",
+    "user_visible_behavior": "Given a description and the creator's identity, the connector starts the MCP server, offers its tools to the LLM, relays tool calls until a final JSON answer (location, L1/L2/L3, assignee, notes) or the iteration cap, then stops the MCP process.",
+    "depends_on": [
+      "ai-messages-adapter",
+      "mcp-read-tools"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test with a stubbed LLM that issues two tool calls then a final answer: MCP is called and the answer is returned",
+      "Test: iteration cap returns a controlled error and the MCP process is terminated"
+    ],
+    "evidence": [],
+    "notes": "ADR 0001. Assignee only when named or self-assigned ('asígnamelo'); priority is not inferred."
+  },
+  {
+    "id": "api-work-order-inference",
+    "area": "ai",
+    "title": "Inference endpoint returns validated prefill with notes",
+    "user_visible_behavior": "POST /get-work-order-inference returns suggested location, L1/L2/L3, priority (from L3 default) and assignee; invalid, inconsistent or service-account values are blanked with a prefill note, and the run is written to the AI Prefill log.",
+    "depends_on": [
+      "ai-agent-loop",
+      "api-create-work-order"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test with stubbed loop output containing a bad location id and an L3 not under its L2: both blanked with notes",
+      "Manual: real call with 'El aire de la 214 no enfría, asígnamelo' returns the expected fields and a log row"
+    ],
+    "evidence": [],
+    "notes": "Zero invalid IDs reach the frontend (success criterion)."
+  },
+  {
+    "id": "ai-evaluation-set",
+    "area": "ai",
+    "title": "Evaluation script measures prefill accuracy and latency",
+    "user_visible_behavior": "Running the evaluation script sends ~20 Spanish sample descriptions to the inference endpoint and reports per-field accuracy, invalid-ID count and latency per sample.",
+    "depends_on": [
+      "api-work-order-inference"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Report saved as evidence for each provider; targets: ≥80% fields correct, 0 invalid IDs, ~≤15 s per prefill"
+    ],
+    "evidence": [],
+    "notes": "Samples cover self-assignment, named technician, ambiguous name, unknown room, ambiguous typology. Consumes DevExpert quota."
+  },
+  {
+    "id": "ui-login",
+    "area": "ui",
+    "title": "Login screen stores the token and opens the app",
+    "user_visible_behavior": "On a 360px screen the user enters username and password, sees an error on bad credentials, and on success lands on the home screen (dashboard once ui-dashboard is built, a placeholder before that).",
+    "depends_on": [
+      "api-login"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Manual in browser at 360px: bad and good credentials behave as described",
+      "Opening an app page without a valid token redirects to login"
+    ],
+    "evidence": [],
+    "notes": "DESIGN.md. UI copy in Spanish."
+  },
+  {
+    "id": "ui-app-shell",
+    "area": "ui",
+    "title": "Collapsible side menu navigation",
+    "user_visible_behavior": "Authenticated pages show a top bar and a side menu (hidden on mobile, persistent at ≥993px) linking to the dashboard, the list, new manual work order and new AI work order.",
+    "depends_on": [
+      "ui-login"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Manual at 360px and 1200px: menu toggles on mobile and stays open on desktop; links navigate"
+    ],
+    "evidence": [],
+    "notes": "W3.CSS w3-sidebar; minimal JS. Logout link added by ui-logout."
+  },
+  {
+    "id": "ui-dashboard",
+    "area": "ui",
+    "title": "Dashboard home with status and priority counts",
+    "user_visible_behavior": "After login the user lands on the dashboard, which shows one tile per status with its count and one tile per priority counting open work orders; the side menu links back to it.",
+    "depends_on": [
+      "ui-app-shell",
+      "api-get-work-orders-summary"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Manual at 360px: tiles match the API response; login lands here; menu link works"
+    ],
+    "evidence": [],
+    "notes": "DESIGN.md core screen 2. No floating AI button (list screen only)."
+  },
+  {
+    "id": "ui-work-order-list",
+    "area": "ui",
+    "title": "Work order list with floating AI button",
+    "user_visible_behavior": "The list shows work order cards (location, L3, status and priority tags, assignee, date) and a floating AI button that opens AI creation; tapping a card opens its detail.",
+    "depends_on": [
+      "ui-app-shell",
+      "api-get-work-orders"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Manual at 360px with seeded/created orders: cards render, FAB visible only on this screen and navigates to AI creation"
+    ],
+    "evidence": [],
+    "notes": "FAB on the list screen only (DESIGN.md)."
+  },
+  {
+    "id": "ui-work-order-detail",
+    "area": "ui",
+    "title": "Work order detail with status history",
+    "user_visible_behavior": "The detail screen shows all work order fields, the full description and the status history in order.",
+    "depends_on": [
+      "ui-work-order-list",
+      "api-get-work-order"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Manual: open a created order from the list and compare with the API response"
+    ],
+    "evidence": [],
+    "notes": "No FAB here."
+  },
+  {
+    "id": "ui-create-work-order-manual",
+    "area": "ui",
+    "title": "Manual work order form with cascading typologies",
+    "user_visible_behavior": "The user writes a description, picks a location, L1→L2→L3 (priority fills from the L3 default and can be changed) and an optional assignee, saves, and sees the new order in the list.",
+    "depends_on": [
+      "ui-app-shell",
+      "api-create-work-order"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Manual at 360px: changing L1 resets L2/L3; choosing L3 sets priority; saving shows the order with the correct status"
+    ],
+    "evidence": [],
+    "notes": "The form is reused by the AI flow."
+  },
+  {
+    "id": "ui-ai-prefill",
+    "area": "ui",
+    "title": "AI creation prefills the form for review",
+    "user_visible_behavior": "The user writes a description and requests AI Prefill; a loading state shows 'Analizando…'; the form is then filled with highlighted AI fields and prefill notes on blank fields; the user adjusts and saves.",
+    "depends_on": [
+      "ui-create-work-order-manual",
+      "api-work-order-inference"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Manual end-to-end MVP walkthrough at 360px: login → dashboard → list → FAB → description → prefill → review → save → order visible in list and detail",
+      "Manual: unknown room shows a blank location with a note"
+    ],
+    "evidence": [],
+    "notes": "Completes the MVP slice in docs/build-brief.md."
+  },
+  {
+    "id": "api-update-work-order",
+    "area": "work-orders",
+    "title": "Update a work order enforcing lifecycle rules",
+    "user_visible_behavior": "POST /update-work-order changes editable fields and status following the guided lifecycle; closed orders are rejected; each status change writes a history entry.",
+    "depends_on": [
+      "api-get-work-order"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Tests: assign→Asignado, unassign→Pendiente, En resolución requires assignee, Resuelto only from En resolución, Cancelado from any open status, closed orders not editable, history written on each change"
+    ],
+    "evidence": [],
+    "notes": "Post-MVP-slice. Initial stance: creator, created at and description are not editable (open question)."
+  },
+  {
+    "id": "ui-edit-work-order",
+    "area": "ui",
+    "title": "Edit work order screen",
+    "user_visible_behavior": "From the detail, the user edits an open work order (fields and status) and sees the result; closed orders are shown read-only.",
+    "depends_on": [
+      "ui-work-order-detail",
+      "api-update-work-order"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Manual at 360px: edit status and assignee of an open order; closed order offers no edit"
+    ],
+    "evidence": [],
+    "notes": "Only valid next statuses are offered."
+  },
+  {
+    "id": "api-logout",
+    "area": "auth",
+    "title": "Logout revokes the token",
+    "user_visible_behavior": "POST /logout invalidates the current token; later requests with it get 401.",
+    "depends_on": [
+      "api-token-guard"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Test: token works before logout and returns 401 after"
+    ],
+    "evidence": [],
+    "notes": "Low priority."
+  },
+  {
+    "id": "ui-logout",
+    "area": "ui",
+    "title": "Logout from the side menu",
+    "user_visible_behavior": "Choosing logout in the side menu revokes the token and returns to the login screen.",
+    "depends_on": [
+      "ui-app-shell",
+      "api-logout"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Manual: after logout, the back button cannot reach app pages without logging in"
+    ],
+    "evidence": [],
+    "notes": ""
+  }
+]

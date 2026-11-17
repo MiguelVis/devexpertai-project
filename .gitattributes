@@ -1,2 +1,4 @@
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text=auto
+# Shell scripts must keep LF so bash can run them on Windows checkouts.
+*.sh text eol=lf
