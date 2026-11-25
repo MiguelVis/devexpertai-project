@@ -5,8 +5,8 @@
       "Bash(./init.sh *)",
       "Bash(bash ./init.sh)",
       "Bash(php *)",
-      "Bash(C:/xampp/mysql/bin/mysql.exe *)",
-      "Bash(/c/xampp/mysql/bin/mysql.exe *)",
+      "Bash(C:/xampp/mysql/bin/mysql.exe --defaults-extra-file=config/mysql.cnf *)",
+      "Bash(/c/xampp/mysql/bin/mysql.exe --defaults-extra-file=config/mysql.cnf *)",
       "Bash(git status)",
       "Bash(git status *)",
       "Bash(git diff)",
@@ -47,6 +47,7 @@
       "Bash(npm *)",
       "Bash(composer *)",
       "Edit(config/config.php)",
+      "Edit(config/mysql.cnf)",
       "Edit(.claude/**)",
       "Edit(.agents/**)"
     ]

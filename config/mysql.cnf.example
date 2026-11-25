@@ -1,0 +1,11 @@
+# MariaDB client options for the dedicated project user.
+# Copy to config/mysql.cnf (git-ignored) and fill in the password. Never commit the real file.
+# Usage (Git Bash, from the repo root):
+#   /c/xampp/mysql/bin/mysql.exe --defaults-extra-file=config/mysql.cnf -e "SELECT CURRENT_USER();"
+# --defaults-extra-file must be the first option.
+[client]
+host=127.0.0.1
+port=3306
+user=hm_app
+password=
+default-character-set=utf8mb4

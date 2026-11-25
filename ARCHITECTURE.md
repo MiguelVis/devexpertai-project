@@ -15,6 +15,7 @@ src/                     PHP application code, namespace App\ -> src/
 config/
   config.example.php     committed template; config/config.php is the git-ignored real file
   apache.conf.example    committed XAMPP Alias snippet; config/apache.conf is git-ignored
+  mysql.cnf.example      committed mysql client login template; config/mysql.cnf is git-ignored
 tests/
   run.php                plain PHP test runner
   lib/                   assert helpers, short-lived dev server + HTTP helpers
@@ -29,6 +30,7 @@ logs/                    reserved, git-ignored runtime logs
 - **Web root.** Only `public/` is exposed. Everything else (`src/`, `config/`, `tests/`, `db/`, `mcp/`) stays outside it and is reached via `require` from entry points.
 - **Bootstrap.** Every PHP entry point (API, CLI scripts, tests) starts with `require_once <root>/src/bootstrap.php`. It defines `APP_ROOT`, sets `error_reporting(E_ALL)`, `display_errors=0`, `log_errors=1` (no HTML errors inside JSON), and registers the autoloader mapping `App\Foo\Bar` to `src/Foo/Bar.php`. It is safe to require twice.
 - **Config.** `App\Config::loadDefault()` loads `APP_ROOT/config/config.php`, a PHP file returning an array (keys: `db`, `llm` with `default_provider` and `providers.{anthropic,devexpert}`, `mcp`, `service_account`, `auth`, `log`). `App\Config::load($path)` throws `RuntimeException` if the file is missing or does not return an array. Code that does not need config (e.g. the placeholder API entry point) must not load it.
+- **Database account.** The app, tests and agent sessions connect as the dedicated MariaDB user `hm_app@localhost`, which has `ALL` only on `hotel_maintenance` and on `hm\_%` (per-feature databases such as `hm_db_schema`). The MariaDB `root` account is not used by the project. The password lives only in the git-ignored `config/config.php` (`db.password`) and `config/mysql.cnf` (mysql client, used as `mysql.exe --defaults-extra-file=config/mysql.cnf ...`, which must be the first option).
 
 ## Serving Modes
 

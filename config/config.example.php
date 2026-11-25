@@ -9,8 +9,9 @@ return [
         'host' => '127.0.0.1',
         'port' => 3306,
         'name' => 'hotel_maintenance',
-        'user' => 'root',
-        'password' => '',
+        // Dedicated MariaDB user: ALL on hotel_maintenance and hm_% only (see ARCHITECTURE.md).
+        'user' => 'hm_app',
+        'password' => '', // fill in config/config.php only; never commit it
         'charset' => 'utf8mb4',
     ],
     'llm' => [

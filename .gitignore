@@ -1,6 +1,7 @@
 # Local secrets and machine-specific config (copy from the *.example files).
 /config/config.php
 /config/apache.conf
+/config/mysql.cnf
 
 # Runtime output.
 /logs/

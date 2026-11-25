@@ -51,7 +51,7 @@ The PHP backend runs the agent loop; see [ADR 0001](adr/0001-php-backend-runs-ag
 
 ## Deployment and Operations
 
-Local only: Windows + XAMPP. LLM API keys, the MCP API key, the service account credentials and the DB credentials live in a configuration file kept out of git (`config/config.php`, copied from the committed `config/config.example.php`). Hosting, PWA and an HTTP MCP transport are deferred decisions.
+Local only: Windows + XAMPP. LLM API keys, the MCP API key, the service account credentials and the DB credentials live in a configuration file kept out of git (`config/config.php`, copied from the committed `config/config.example.php`). The database is accessed through a dedicated MariaDB user `hm_app` limited to `hotel_maintenance` and `hm_%` databases, never `root`; its mysql client login lives in the git-ignored `config/mysql.cnf` (from `config/mysql.cnf.example`). Hosting, PWA and an HTTP MCP transport are deferred decisions.
 
 Serving (decided in `bootstrap-project-skeleton`, see `ARCHITECTURE.md`): only `public/` is the web root. Dev and automated checks use `php -S 127.0.0.1:8080 -t public`; XAMPP Apache serves the same folder at `http://localhost/devexpertai/` through an `Alias` snippet (`config/apache.conf.example`, copied to the git-ignored `config/apache.conf` and included from `httpd-vhosts.conf`). The frontend uses relative URLs only.
 
