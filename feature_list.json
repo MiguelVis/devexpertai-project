@@ -71,7 +71,7 @@
       "Passwords are stored as password_hash values"
     ],
     "evidence": [],
-    "notes": "Open question: who authors the realistic typology tree. Seed must support the evaluation scenarios (room numbers, Piscina, named technicians, duplicate first names)."
+    "notes": "Open question: who authors the realistic typology tree. Seed must support the evaluation scenarios (room numbers, Piscina, named technicians, duplicate first names). Since db-schema, statuses and priorities are fixed lookup rows inserted by db/schema.sql: L3 typologies set default_priority_id (1 Baja, 2 Media, 3 Alta) and the seed must not write to statuses or priorities."
   },
   {
     "id": "api-post-json-router",
