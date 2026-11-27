@@ -15,7 +15,7 @@ Mobile-first web app. Home after login is the dashboard (`get-work-orders-summar
 
 ## Data and Storage
 
-Tables for users, auth tokens, work orders, status history, typologies L1/L2/L3, locations, location types, plus an AI Prefill log (see Observability). Seed data: a realistic set of locations, the typology tree with default priorities, a few users and the MCP service account.
+Tables for users, auth tokens, work orders, status history, typologies L1/L2/L3, locations, location types, plus an AI Prefill log (see Observability). They are defined in `db/schema.sql` (drop-and-create, see `ARCHITECTURE.md` Database); `auth_tokens` stores only the hex SHA-256 of each token, never the raw token, and logout deletes the row. Seed data: a realistic set of locations, the typology tree with default priorities, a few users and the MCP service account.
 
 ## Integrations
 
