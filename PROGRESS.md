@@ -82,3 +82,10 @@
 - Added `public/assets/img/brand/` (user-supplied PNGs): `favicon.png` 180×180, `logo-mark.png` 330×313 (navy tile), `logo-white.png` 714×374 (white stacked, for teal), `logo.png` 714×374 (navy stacked, for white). Checked: transparent backgrounds, no stray marks (the first `logo.png` had a red smudge and the first `logo-white.png` was navy; both replaced by the user), white logo rendered on `#009688` and verified visually.
 - `DESIGN.md`: new Brand section (placement, display sizes, `alt`, relative favicon links); login header and brand header use the logos; "Logo" open question closed. `ARCHITECTURE.md` layout updated.
 - Verification: `./init.sh` exit 0, 13 files, 20 tests, 0 failures. Next best step unchanged: `db-schema`.
+
+### Session 003d (design: states and transparent AI Prefill)
+
+- Date: 2026-11-27
+- `DESIGN.md`: new "States and Feedback" section (loading, load failure with Reintentar, empty list, saving, validation, success toast, discard confirmation, expired session → login with notice, logout without confirmation); JavaScript scope rule extended accordingly.
+- User decision: AI Prefill is transparent. Form 5b opens with only the fields the AI determined; no highlight, "IA" label, notes or messages. An AI failure or timeout opens 5b with just the description. Prefill notes remain, but only in the AI Prefill log. Updated `DESIGN.md` (removed the `ai` colour token), `CONTEXT.md` (Prefill Note), `docs/build-brief.md`, `docs/domain-model.md`, `docs/technical-discovery.md`, and `feature_list.json` (`api-work-order-inference` title, behaviour and test; `ui-ai-prefill` behaviour and manual checks).
+- Docs only; no code changed. Next best step unchanged: `db-schema`.

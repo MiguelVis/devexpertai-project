@@ -44,11 +44,11 @@ Pendiente ─────────▶ Asignado ─────────▶
 
 1. "El aire de la 214 no enfría, asígnamelo" → location Habitación 214, Avería > Climatización > AC no enfría, assignee is the creator, status Asignado, priority from that L3.
 2. "Gotea el grifo de la piscina, que lo mire Juan" → location Piscina, typology inferred, assignee Juan, status Asignado.
-3. "Hay una bombilla fundida en el pasillo" with no matching location → location blank with a prefill note; the user picks it manually.
+3. "Hay una bombilla fundida en el pasillo" with no matching location → location blank (prefill note in the AI Prefill log); the user picks it manually.
 
 ## Edge Cases
 
-- **Named user is ambiguous** (two users called Juan) or doesn't exist → assignee blank with a prefill note.
+- **Named user is ambiguous** (two users called Juan) or doesn't exist → assignee blank (prefill note in the AI Prefill log).
 - **Name is a service account** → never suggested.
 - **The AI returns IDs** that don't exist, or an L3 that isn't under the returned L2/L1 → the backend discards them and shows a note.
 - **Unassigning an En resolución order** → not allowed. The user must first move the order back to a valid status, or cancel it.

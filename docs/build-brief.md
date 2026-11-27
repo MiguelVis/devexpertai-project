@@ -38,7 +38,7 @@ One end-to-end flow:
 
 1. Log in (username + password, token issued) and land on the dashboard: work order counts by status, and open (not closed) work orders by priority.
 2. Write a description (from the floating AI button on the dashboard or the list).
-3. AI Prefill: the backend runs the LLM, which queries the MCP server for context, and returns suggested location, typologies and assignee, with prefill notes for anything unmatched.
+3. AI Prefill: the backend runs the LLM, which queries the MCP server for context, and returns suggested location, typologies and assignee. Unmatched fields are left blank, with no message to the user (the reason is a prefill note in the AI Prefill log).
 4. Review and adjust the form. Priority is prefilled from the L3 typology and can be changed; status is Asignado if there is an assignee, otherwise Pendiente.
 5. Save (`create-work-order`). A status history entry is recorded.
 6. See the new work order in the list and open its detail.
@@ -54,7 +54,7 @@ After the slice: manual edit (`update-work-order`), logout.
 ## Success Criteria
 
 - At least 80% of expected fields prefilled correctly across the evaluation set.
-- Zero invalid IDs returned to the frontend (unmatched fields are blank with a note, never invented).
+- Zero invalid IDs returned to the frontend (unmatched fields are blank, never invented).
 - An AI Prefill response in about 15 seconds or less.
 - The MVP slice works end to end locally on XAMPP.
 

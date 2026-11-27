@@ -22,7 +22,6 @@ colors:
   border: "#cfd8dc"
   muted: "#5f6b7a"
   danger: "#C62828"
-  ai: "#1976D2"             # AI-prefilled field highlight and "IA" label
 status:                     # tag background / text, all >= 4.5:1
   Pendiente: { background: "#616161", text: "#ffffff" }
   Asignado: { background: "#1976D2", text: "#ffffff" }
@@ -108,7 +107,7 @@ Calm and operational, not decorative. Colour is used for meaning (brand, status,
 - **Primary (teal):** `primary` `#009688` for the top bar on mobile, the sidebar brand header, the login card header and dialog headers, always with white bold text of at least 18.66px (`barTitle`). `primaryStrong` `#00796B` for primary buttons, the FAB, links, the active menu item and any small text, because white on `#009688` is only 3.67:1.
 - **Neutral** `#282A35`: body text, the desktop top bar, inverted buttons.
 - **Tertiary** (blue grey): compact icon buttons and secondary text.
-- **AI:** the AI action is recognisable by the `auto_awesome` icon on primary buttons ("Nuevo con IA", dialog 5a). The `ai` colour (`#1976D2`) is reserved for marking AI-prefilled fields for review.
+- **AI:** the AI action is recognisable by the `auto_awesome` icon on primary buttons ("Nuevo con IA", dialog 5a). The AI result itself has no colour or mark: prefilled values look like any other value.
 - Status and priority are shown as small solid tags with text (`w3-tag`, colours from `status` and `priority`), never as colour alone. Baja is an outlined tag. The pastel tags in the mobile dashboard export are not used: tags look the same on every screen.
 
 ## Typography
@@ -136,9 +135,25 @@ Source Sans 3, hosted locally (`assets/css/fonts.css`), with the system font sta
 - **Row actions** (compact 44px icon buttons with `aria-label`): "Ver" (`visibility`) opens the detail; "Editar" (`edit`) opens form 6 and is hidden for closed orders; "Histórico" (`history`) opens the status history dialog.
 - **Status history:** mobile shows one card per entry, newest first, with a left border in the status colour, the status tag, the date and time, and the user's name. Desktop shows a table: Fecha, Estado, Usuario. Only the fields a status history entry has (timestamp, status, user) are shown.
 - **Work order form:** one form for create (manual and AI) and edit, shown as a dialog. Fields in the Stitch order: L1 → L2 → L3 cascaded selects, location, priority (set from the L3 default when L3 changes, editable), assignee, status (edit only), and the description (textarea) at the bottom. Required fields show a red asterisk. One column at 360px, two columns on wide screens (as in the Stitch desktop export). Footer: "Cancelar" and "Guardar" (`save`).
-- **AI-prefilled fields:** a left border in the `ai` colour and an "IA" label. A **prefill note** appears below a blank field in muted text.
+- **AI-prefilled fields:** no visual distinction and no message. The fields the AI determined are filled; the others stay empty for the user to fill in manually. No "IA" label, highlight or note.
 - **Loading state** for AI Prefill: a disabled "Enviar" button with a spinner and the text "Analizando…". It must handle about 15 seconds without looking frozen.
 - **Errors:** a `w3-panel` in the danger colour at the top of the form or dialog.
+
+## States and Feedback
+
+No Stitch screen covers these; they apply to every screen so all `ui-*` features behave the same. Copy is in Spanish as written here.
+
+- **Loading (dashboard, list, detail, history dialog):** the top bar, side menu and FAB stay visible; the content area shows a centred spinner with "Cargando…". No skeleton screens.
+- **Load failure:** a danger `w3-panel` in the content area: "No se pudieron cargar los datos." with a secondary "Reintentar" button that repeats the request. The same message for network and server errors; details go to the server log, never to the screen.
+- **Empty list:** a centred card with a muted `assignment` icon, "Todavía no hay partes de trabajo." and a primary "Nuevo parte" button. The FAB stays visible.
+- **Empty dashboard:** no special state. All tiles are always shown, with 0 where there are no work orders.
+- **Saving a form:** while the request runs, "Guardar" is disabled and reads "Guardando…"; "Cancelar" is disabled too. Field values are never cleared on failure.
+- **Validation:** required fields are checked before sending. Each invalid field shows "Campo obligatorio" (or the specific reason) below it in the danger colour, and focus moves to the first invalid field. Errors returned by the API (for example an invalid status change) show in the danger panel at the top of the dialog.
+- **Success:** the dialog closes and a toast appears at the bottom centre, above the FAB, for about 4 seconds: "Parte #<id> creado" or "Parte #<id> actualizado". It uses `role="status"` so screen readers announce it. On the list, the saved order shows at the top with a `primaryTint` background for a few seconds.
+- **AI Prefill failure (dialog 5a):** if the request fails or times out, it is handled like a result with nothing determined: 5a closes and form 5b opens with only the description filled, with no message. The user is never blocked by the AI. (A 401 still means an expired session, below.)
+- **Discarding changes:** if a form or dialog 5a has changes ("Cancelar", the close button or Escape), a small confirmation dialog asks "¿Descartar los cambios?" with "Seguir editando" (secondary) and "Descartar" (danger). A form just prefilled by AI counts as changed. An unchanged form closes without asking.
+- **Expired session:** any 401 from the API clears the token and opens the login screen with an info panel (not danger): "Tu sesión ha caducado. Vuelve a iniciar sesión." Unsaved changes are lost; this is accepted for the PoC.
+- **Logout:** no confirmation; goes straight to the login screen.
 
 ## Brand
 
@@ -166,9 +181,9 @@ The hotel brand (navy building with a star, "Demo Hotel") lives in `public/asset
 3. **Work order list** (Stitch `03-work-order-list.png`): a header with the title "Partes", a count badge and a "Nuevo parte" button (`add`, opens the empty 5b form). Cards on mobile, a table on desktop, newest first, with the row actions above. The floating AI button is shown. No search, filters, sorting or pagination in the PoC.
 4. **Work order detail:** no full Stitch screen. Show every field in the order of the 5b form, read-only, with the full description, then the status history (Stitch `04-work-order-detail.png` style). An "Editar" button opens form 6 for open orders. The history dialog from the list's "Histórico" button reuses the same history component.
 5. **New work order**, in two steps for AI and one step for manual:
-   - **5a. AI description dialog** (Stitch `05-new-work-order-with-ai.png`): a small dialog titled "Nuevo parte con IA" with a single "Descripción del parte" textarea, "Cancelar" and "Enviar". "Enviar" requests AI Prefill and shows the loading state ("Analizando…") inside this dialog. On success it closes and opens 5b with the AI values. On error it stays open with the description kept and an error panel. Opened from the floating AI button. Ignore the "Asistente activo" microphone label in the export: voice input is a non-goal.
-   - **5b. Work order form, create** (Stitch `05-new-work-order.png`): the Work order form titled "Nuevo parte". In the AI flow it opens prefilled: the description from 5a, AI-prefilled fields highlighted and prefill notes on blank fields. The manual flow ("Nuevo parte" on the list) opens it empty. Status is not a field here: it is set on save (Asignado with an assignee, otherwise Pendiente). Attachments are a non-goal, so there is no "Adjuntos" block.
-6. **Edit work order:** no Stitch screen. Reuse the 5b form, titled "Editar parte", filled with the order's current values and no AI highlights. Status is shown as a select offering only the valid next statuses. Fields that are not editable (see `api-update-work-order`) are shown read-only. Closed orders (Resuelto, Cancelado) offer no edit; their detail screen is read-only.
+   - **5a. AI description dialog** (Stitch `05-new-work-order-with-ai.png`): a small dialog titled "Nuevo parte con IA" with a single "Descripción del parte" textarea, "Cancelar" and "Enviar". "Enviar" requests AI Prefill and shows the loading state ("Analizando…") inside this dialog. When the request finishes, it closes and opens 5b with whatever the AI determined (possibly nothing). Opened from the floating AI button. Ignore the "Asistente activo" microphone label in the export: voice input is a non-goal.
+   - **5b. Work order form, create** (Stitch `05-new-work-order.png`): the Work order form titled "Nuevo parte". In the AI flow it opens with the description from 5a and the fields the AI determined; the rest stay empty, with no highlight or message, and the user fills them in. The manual flow ("Nuevo parte" on the list) opens it empty. Status is not a field here: it is set on save (Asignado with an assignee, otherwise Pendiente). Attachments are a non-goal, so there is no "Adjuntos" block.
+6. **Edit work order:** no Stitch screen. Reuse the 5b form, titled "Editar parte", filled with the order's current values. Status is shown as a select offering only the valid next statuses. Fields that are not editable (see `api-update-work-order`) are shown read-only. Closed orders (Resuelto, Cancelado) offer no edit; their detail screen is read-only.
 
 ## Responsive Baseline
 
@@ -181,9 +196,9 @@ Every input has a `<label>`. Status and priority are always shown as text. WCAG 
 ## Do's and Don'ts
 
 - Do use W3.CSS utility classes before writing custom CSS.
-- Do keep JavaScript limited to the menu toggle, opening and closing dialogs, the password show/hide button, cascading selects, the AI request and form submission.
+- Do keep JavaScript limited to the menu toggle, opening and closing dialogs (including the discard confirmation), the password show/hide button, cascading selects, the AI request, form validation and submission, the toast, and redirecting to login on 401.
 - Don't add other icon sets, fonts or libraries. Material Symbols Outlined and Source Sans 3, both local, are the only ones.
-- Don't style AI-prefilled values as final. The user must see what to review.
+- Don't show labels, highlights or messages about the AI result. Prefilled values look like any other value; the user reviews the whole form before saving.
 - Don't copy sample data, extra statuses or features from the Stitch images that the domain does not have.
 
 ## Open Design Questions

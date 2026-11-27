@@ -44,7 +44,7 @@ A non-human user the MCP server uses to log in to the API. It is not a person an
 Turning a description into suggested values for location, typology L1/L2/L3 and assignee, shown in the creation form for the user to review before saving. Called "inference" in the API (`get-work-order-inference`).
 
 ### Prefill Note
-A short message attached to a field the AI could not match confidently (e.g. "Habitación 999 no encontrada"). The field is left blank.
+A short reason recorded in the AI Prefill log when the backend leaves a field blank because the AI could not match it confidently (e.g. "Habitación 999 no encontrada"). It is not shown to the user: the field is simply empty in the form.
 
 ### MCP Server
 The project's own stdio Model Context Protocol server. It gives the LLM read-only context (locations, typologies, users, work orders) by calling the API.

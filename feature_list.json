@@ -319,15 +319,15 @@
   {
     "id": "api-work-order-inference",
     "area": "ai",
-    "title": "Inference endpoint returns validated prefill with notes",
-    "user_visible_behavior": "POST /get-work-order-inference returns suggested location, L1/L2/L3, priority (from L3 default) and assignee; invalid, inconsistent or service-account values are blanked with a prefill note, and the run is written to the AI Prefill log.",
+    "title": "Inference endpoint returns validated prefill",
+    "user_visible_behavior": "POST /get-work-order-inference returns suggested location, L1/L2/L3, priority (from L3 default) and assignee; invalid, inconsistent or service-account values are blanked and never returned; the run, including a prefill note for each blanked field, is written to the AI Prefill log.",
     "depends_on": [
       "ai-agent-loop",
       "api-create-work-order"
     ],
     "status": "not_started",
     "verification": [
-      "Test with stubbed loop output containing a bad location id and an L3 not under its L2: both blanked with notes",
+      "Test with stubbed loop output containing a bad location id and an L3 not under its L2: both blanked, prefill notes in the log, none in the response",
       "Manual: real call with 'El aire de la 214 no enfría, asígnamelo' returns the expected fields and a log row"
     ],
     "evidence": [],
@@ -447,7 +447,7 @@
     "id": "ui-ai-prefill",
     "area": "ui",
     "title": "AI creation prefills the form for review",
-    "user_visible_behavior": "The user writes a description and requests AI Prefill; a loading state shows 'Analizando…'; the form is then filled with highlighted AI fields and prefill notes on blank fields; the user adjusts and saves.",
+    "user_visible_behavior": "The user writes a description and requests AI Prefill; a loading state shows 'Analizando…'; form 5b then opens with the fields the AI determined filled and the rest empty, with no highlight or message; if the AI fails, 5b opens with only the description; the user fills in the rest and saves.",
     "depends_on": [
       "ui-create-work-order-manual",
       "api-work-order-inference"
@@ -455,7 +455,7 @@
     "status": "not_started",
     "verification": [
       "Manual end-to-end MVP walkthrough at 360px: login → dashboard → list → FAB → description → prefill → review → save → order visible in list and detail",
-      "Manual: unknown room shows a blank location with a note"
+      "Manual: unknown room leaves the location empty with no message; a failed or timed-out AI request opens the form with only the description"
     ],
     "evidence": [],
     "notes": "Completes the MVP slice in docs/build-brief.md. DESIGN.md core screen 5a (Stitch 05-new-work-order-with-ai.png): description dialog with Enviar, then the 5b form prefilled."

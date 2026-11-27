@@ -27,7 +27,7 @@ The PHP backend runs the agent loop; see [ADR 0001](adr/0001-php-backend-runs-ag
 2. The AI connector starts the MCP server as a stdio subprocess (`php mcp/server.php`), performs the MCP handshake and lists its tools.
 3. It calls the LLM provider (Anthropic Messages format) with the description, the creator's identity (to resolve "asígnamelo"), the MCP tools, and an instruction to return a fixed JSON result.
 4. It relays tool calls between the LLM and the MCP server until the model returns its final answer, with a cap on iterations.
-5. The backend validates every returned ID against the database, blanks invalid or inconsistent fields, adds prefill notes, and returns the result to the frontend.
+5. The backend validates every returned ID against the database, blanks invalid or inconsistent fields, records a prefill note for each one in the AI Prefill log, and returns only the valid fields to the frontend (the UI shows no notes).
 
 ### LLM providers
 
