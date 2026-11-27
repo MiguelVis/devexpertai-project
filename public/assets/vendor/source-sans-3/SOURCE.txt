@@ -1,0 +1,16 @@
+Source Sans 3 (Adobe, via Google Fonts, vendored, unmodified)
+
+Subset:       latin only (U+0000-00FF and common punctuation; covers Spanish: á é í ó ú ü ñ ¿ ¡ €)
+Axes:         variable weight 200-900, normal style (no italics)
+CSS API URL:  https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@200..900&display=swap
+              (requested with a browser User-Agent so the API answers with woff2)
+Font URL:     https://fonts.gstatic.com/s/sourcesans3/v20/nwpStKy2OAdR1K-IwhWudF-R3w8aZQ.woff2
+Version:      v20 (Google Fonts)
+Downloaded:   2026-11-27
+Size:         28872 bytes
+SHA-256:      19143dca075972bc84e3fd9eab7416dd40cc565dccb2435a044bdfabe060c7d5  SourceSans3-latin.woff2
+License:      SIL Open Font License 1.1, OFL.txt copied from https://raw.githubusercontent.com/google/fonts/main/ofl/sourcesans3/OFL.txt
+              SHA-256 09746787287a289323b0ec3cff4d1a4a801331b82b7207c1e186f5d26619a392  OFL.txt
+
+Do not edit the font. The @font-face rule lives in public/assets/css/fonts.css.
+To verify: sha256sum public/assets/vendor/source-sans-3/SourceSans3-latin.woff2

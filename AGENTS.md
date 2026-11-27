@@ -32,7 +32,7 @@ Before writing code:
 ## Working Rules
 
 - Work on one feature at a time; at most one feature is `in_progress`.
-- No dependencies beyond W3.CSS and the Material Symbols icon font (both vendored, served locally): no Composer packages, npm packages, frameworks, JS libraries or CDN assets. Ask before making any other exception.
+- No dependencies beyond W3.CSS and two fonts, Material Symbols (icons) and Source Sans 3 (text), all vendored and served locally: no Composer packages, npm packages, frameworks, JS libraries or CDN assets. Ask before making any other exception.
 - All API endpoints are POST and return JSON. Every endpoint except `/login` requires a valid token.
 - Never trust IDs returned by the LLM; the backend validates them against the database.
 - The MCP server is read-only.

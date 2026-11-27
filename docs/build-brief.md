@@ -19,7 +19,7 @@ Hotel maintenance staff (technicians and managers) working mostly from mobile de
 - Create a valid work order from a free-text description, with location, typology L1/L2/L3 and assignee prefilled by AI and reviewed by the user.
 - Ground the AI in real hotel data through the project's own MCP server, never through invented values.
 - Stay provider-agnostic: switching LLM provider is configuration only.
-- Run locally on Windows with XAMPP, with no frameworks or libraries beyond W3.CSS (plus the locally hosted Material Symbols icon font, approved 2026-11-27).
+- Run locally on Windows with XAMPP, with no frameworks or libraries beyond W3.CSS (plus two locally hosted fonts, Material Symbols for icons and Source Sans 3 for text, approved 2026-11-27).
 
 ## Non-Goals
 
@@ -30,13 +30,14 @@ Hotel maintenance staff (technicians and managers) working mostly from mobile de
 - Hosting deployment, PWA, HTTP MCP transport (see [risks and open questions](risks-and-open-questions.md)).
 - An OpenAI-compatible adapter (the provider interface allows adding it later).
 - Notifications, attachments/photos, voice input, preventive maintenance, reporting.
+- Shown in the Stitch designs but out of the PoC: password recovery, a recent activity list on the dashboard, search/filters/sorting/pagination on the list, an online / MCP status indicator, user roles in the UI.
 
 ## MVP Slice
 
 One end-to-end flow:
 
 1. Log in (username + password, token issued) and land on the dashboard: work order counts by status, and open (not closed) work orders by priority.
-2. Write a description (from the menu, or the floating AI button on the list screen).
+2. Write a description (from the floating AI button on the dashboard or the list).
 3. AI Prefill: the backend runs the LLM, which queries the MCP server for context, and returns suggested location, typologies and assignee, with prefill notes for anything unmatched.
 4. Review and adjust the form. Priority is prefilled from the L3 typology and can be changed; status is Asignado if there is an assignee, otherwise Pendiente.
 5. Save (`create-work-order`). A status history entry is recorded.

@@ -10,7 +10,7 @@
 - Last accepted feature: `bootstrap-project-skeleton` (independent validator, 2026-11-17).
 - Current next ready feature: `db-schema`
 - Current blocker: none
-- Last verified at: 2026-11-27 (`./init.sh` exit 0, 12 PHP files, 17 tests, 0 failures)
+- Last verified at: 2026-11-27 (`./init.sh` exit 0, 13 PHP files, 20 tests, 0 failures)
 
 ## Session Log
 
@@ -64,4 +64,14 @@
 - Verification: `./init.sh` exit 0, 12 files, 17 tests, 0 failures. Content type `font/woff2` from both `php -S` and XAMPP Apache (`/devexpertai/...` 200, 325,336 B).
 - Docs updated: `DESIGN.md` (`icons` tokens, Icons section, Don'ts), `CONSTRAINTS.md` (icon rule), `AGENTS.md`, `ARCHITECTURE.md`, `docs/build-brief.md`, `docs/technical-discovery.md`.
 - Not done: no page uses icons yet (the first `ui-*` feature links `assets/css/icons.css`); Stitch PNGs in `docs/design/stitch/` are untracked and not yet referenced from `DESIGN.md`.
+- Next best step: unchanged, `db-schema`.
+
+### Session 003b (design: all Stitch screens)
+
+- Date: 2026-11-27
+- Goal: Document every Stitch export in `DESIGN.md` and adopt the Stitch visual style.
+- User decisions: Stitch palette and Source Sans 3 (hosted locally, second approved font); dashboard keeps the specified content (5 status + 3 priority tiles) with the Stitch tile look, no recent activity list; list gets the Stitch layout and row buttons but no search, filters, sorting or pagination; the floating AI button is on the dashboard and the list.
+- Completed: `DESIGN.md` rewritten (Stitch asset table with "use / ignore" per image, teal tokens with AA-safe `primaryStrong`, status/priority tag pairs, Source Sans 3 typography, layout, side menu, dialogs, components, screens 1-6). Vendored `public/assets/vendor/source-sans-3/SourceSans3-latin.woff2` (28,872 B, SHA-256 `19143dca...c7d5`) + `OFL.txt` + `SOURCE.txt`; `public/assets/css/fonts.css`; `tests/bootstrap/fonts_test.php` (3 tests). UI feature entries in `feature_list.json` updated (behaviour, notes; `ui-work-order-list` verification no longer says "FAB only on this screen"). `docs/build-brief.md` (MVP step 2, Stitch features out of the PoC), `AGENTS.md`, `CONSTRAINTS.md`, `ARCHITECTURE.md`, `docs/technical-discovery.md`.
+- Verification: `./init.sh` exit 0, 13 files, 20 tests, 0 failures. Contrast ratios computed for every token pairing (all text pairings >= 4.5:1; white on `#009688` is 3.67:1, so it is limited to large bold text).
+- Side menu has only Dashboard and Partes de trabajo, as in Stitch; work orders are created from the list's "Nuevo parte" and the AI button (confirmed by the user). Hotel name: "Demo Hotel" (user decision; replaces the Stitch placeholder "Grand Hotel").
 - Next best step: unchanged, `db-schema`.

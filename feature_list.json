@@ -362,13 +362,13 @@
       "Opening an app page without a valid token redirects to login"
     ],
     "evidence": [],
-    "notes": "DESIGN.md. UI copy in Spanish."
+    "notes": "DESIGN.md core screen 1 (Stitch 01-login.png; no password recovery link). UI copy in Spanish."
   },
   {
     "id": "ui-app-shell",
     "area": "ui",
     "title": "Collapsible side menu navigation",
-    "user_visible_behavior": "Authenticated pages show a top bar and a side menu (hidden on mobile, persistent at ≥993px) linking to the dashboard, the list, new manual work order and new AI work order.",
+    "user_visible_behavior": "Authenticated pages show a top bar and a side menu (hidden on mobile, persistent at ≥993px) linking to the dashboard and the work order list; new work orders start from the list's Nuevo parte button and the floating AI button.",
     "depends_on": [
       "ui-login"
     ],
@@ -377,13 +377,13 @@
       "Manual at 360px and 1200px: menu toggles on mobile and stays open on desktop; links navigate"
     ],
     "evidence": [],
-    "notes": "W3.CSS w3-sidebar; minimal JS. Logout link added by ui-logout."
+    "notes": "W3.CSS w3-sidebar; minimal JS. Logout link added by ui-logout. DESIGN.md Layout (Stitch 99-sidebar-menu.png and desktop exports): teal brand header, user initials avatar and name, neutral desktop top bar; links fonts.css and icons.css."
   },
   {
     "id": "ui-dashboard",
     "area": "ui",
     "title": "Dashboard home with status and priority counts",
-    "user_visible_behavior": "After login the user lands on the dashboard, which shows one tile per status with its count and one tile per priority counting open work orders; the side menu links back to it.",
+    "user_visible_behavior": "After login the user lands on the dashboard, which shows one tile per status with its count and one tile per priority counting open work orders, plus the floating AI button; the side menu links back to it.",
     "depends_on": [
       "ui-app-shell",
       "api-get-work-orders-summary"
@@ -393,29 +393,29 @@
       "Manual at 360px: tiles match the API response; login lands here; menu link works"
     ],
     "evidence": [],
-    "notes": "DESIGN.md core screen 2. No floating AI button (list screen only)."
+    "notes": "DESIGN.md core screen 2. Stitch 02-dashboard.png for the tile look only: keep this content, no recent activity list. FAB shown here and on the list (user decision 2026-11-27)."
   },
   {
     "id": "ui-work-order-list",
     "area": "ui",
     "title": "Work order list with floating AI button",
-    "user_visible_behavior": "The list shows work order cards (location, L3, status and priority tags, assignee, date) and a floating AI button that opens AI creation; tapping a card opens its detail.",
+    "user_visible_behavior": "The list shows work orders newest first as cards on mobile and a table at ≥993px (id, date, priority and status tags, location, L1/L2/L3, assignee), with a Ver row button that opens the detail, a Nuevo parte button that opens the manual form, and a floating AI button that opens AI creation.",
     "depends_on": [
       "ui-app-shell",
       "api-get-work-orders"
     ],
     "status": "not_started",
     "verification": [
-      "Manual at 360px with seeded/created orders: cards render, FAB visible only on this screen and navigates to AI creation"
+      "Manual at 360px with seeded/created orders: cards render (table at ≥993px), Ver opens the detail, FAB opens AI creation"
     ],
     "evidence": [],
-    "notes": "FAB on the list screen only (DESIGN.md)."
+    "notes": "DESIGN.md core screen 3 (Stitch 03-work-order-list.png). FAB also on the dashboard. Row buttons Histórico and Editar arrive with ui-work-order-detail and ui-edit-work-order. No search, filters, sorting or pagination in the PoC (user decision 2026-11-27)."
   },
   {
     "id": "ui-work-order-detail",
     "area": "ui",
     "title": "Work order detail with status history",
-    "user_visible_behavior": "The detail screen shows all work order fields, the full description and the status history in order.",
+    "user_visible_behavior": "The detail screen shows all work order fields, the full description and the status history in order; a Histórico row button on the list opens the same status history in a dialog.",
     "depends_on": [
       "ui-work-order-list",
       "api-get-work-order"
@@ -425,7 +425,7 @@
       "Manual: open a created order from the list and compare with the API response"
     ],
     "evidence": [],
-    "notes": "No FAB here."
+    "notes": "No FAB here. DESIGN.md core screen 4: fields read-only in the 5b form order; status history styled after Stitch 04-work-order-detail.png (timestamp, status, user only)."
   },
   {
     "id": "ui-create-work-order-manual",
@@ -489,7 +489,7 @@
       "Manual at 360px: edit status and assignee of an open order; closed order offers no edit"
     ],
     "evidence": [],
-    "notes": "Only valid next statuses are offered. DESIGN.md core screen 6: no Stitch screen; reuses the 5b form titled Editar parte."
+    "notes": "Only valid next statuses are offered. DESIGN.md core screen 6: no Stitch screen; reuses the 5b form titled Editar parte. Opened from the detail and from an Editar row button on the list (hidden for closed orders)."
   },
   {
     "id": "api-logout",
