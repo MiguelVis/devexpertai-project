@@ -38,7 +38,7 @@ return [
         assert_same(1, preg_match('//u', $sql), 'Valid UTF-8:');
         // Checked on the statements (comments removed): the header comment documents the rules.
         $code = implode("\n", test_db_split_sql($sql));
-        foreach (['/\bCREATE\s+DATABASE\b/i', '/\bDROP\s+DATABASE\b/i', '/\bSCHEMA\b/i', '/^\s*USE\s/im', '/\bDELIMITER\b/i', '/\bTRIGGER\b/i', '/\bPROCEDURE\b/i', '/\bVIEW\b/i', '/\bEVENT\b/i', '/\bINSERT\b/i'] as $pattern) {
+        foreach (['/\bCREATE\s+DATABASE\b/i', '/\bDROP\s+DATABASE\b/i', '/\bSCHEMA\b/i', '/^\s*USE\s/im', '/\bDELIMITER\b/i', '/\bTRIGGER\b/i', '/\bPROCEDURE\b/i', '/\bVIEW\b/i', '/\bEVENT\b/i', '/\bENUM\s*\(/i', '/\bAS\s+BINARY\b/i'] as $pattern) {
             assert_same(0, preg_match($pattern, $code), "Forbidden pattern {$pattern}:");
         }
         assert_same(0, preg_match('/\b(CREATE|DROP)\s+DATABASE\b/i', $sql), 'No CREATE/DROP DATABASE anywhere, comments included:');
@@ -51,6 +51,11 @@ return [
             }
         }
         $creates = array_values(array_filter(test_db_split_sql($sql), fn (string $s): bool => str_starts_with($s, 'CREATE TABLE')));
-        assert_same(10, count($creates), 'CREATE TABLE count:');
+        assert_same(12, count($creates), 'CREATE TABLE count:');
+        // The only rows the schema writes are the fixed lookup rows of statuses and priorities.
+        $inserts = array_values(array_filter(test_db_split_sql($sql), fn (string $s): bool => preg_match('/\bINSERT\b/i', $s) === 1));
+        assert_same(2, count($inserts), 'INSERT statement count:');
+        assert_true(str_starts_with($inserts[0], 'INSERT INTO statuses ('), 'First INSERT is into statuses:');
+        assert_true(str_starts_with($inserts[1], 'INSERT INTO priorities ('), 'Second INSERT is into priorities:');
     },
 ];

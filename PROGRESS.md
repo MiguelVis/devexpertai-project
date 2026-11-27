@@ -117,3 +117,18 @@
 
 - Independent re-validation verdict: **accept**. Re-ran `./init.sh` (16 files 0 syntax errors, 30 tests 0 failures, gate passed); applied `db/schema.sql` twice via mysql client (OK/OK, 10 tables); `CHECK_CONSTRAINTS` use byte comparison on all status/priority checks; 4025 for trailing-space, unaccented and unknown values; `En resolución` round-trips byte-identical; 1452/1451 FK probes; `php tests/run.php db` 10/0; no-config SKIP reproduced in-process. Scope, secrets and cleanup checked; only `hm_db_schema` touched.
 - Status set to `accepted`. Next best step: `db-seed-data`.
+
+#### db-schema change request (implementer, 2026-11-27)
+
+- Trigger: user change request after acceptance (commit d1e7bbb, unpublished); feature reopened `in_progress`. Spec: `docs/specs/db-schema.md` section "Change Request (2026-11-27)".
+- Completed: `db/schema.sql` now creates the lookup tables `statuses` (fixed ids 1-5, `is_closed`, `sort_order`) and `priorities` (fixed ids 1-3, `sort_order`) and inserts their rows; `work_orders.status_id` / `priority_id`, `work_order_status_history.status_id` and `level3_typologies.default_priority_id` are `INT UNSIGNED NOT NULL` RESTRICT FKs; the VARCHAR status/priority columns, their `CAST(... AS BINARY)` CHECKs and `ix_work_orders_status` are gone; drop order is reverse dependency (12 tables); header comment rewritten. `tests/db/db_helper_test.php` (12 CREATEs, exactly 2 INSERTs into statuses then priorities, ENUM/AS BINARY banned) and `tests/db/schema_test.php` (8 live tests per the CR) updated. Status transition rules stay out of the database.
+- Verification: schema applied twice via the mysql client over the pre-CR schema (exit 0 both), 12 tables, lookup hex exact (`En resolución` = `456E207265736F6C756369C3B36E`), only the 5 expected CHECKs; manual probes 1452 (L2 unknown L1) and 1062 (`En resolucion` look-alike in `statuses`), schema re-applied; `php tests/run.php db` -> 11 tests, 0 failures; `./init.sh` -> 16 files 0 syntax errors, 31 tests 0 failures, gate passed. No `php.exe` left; `hm_db_schema` left with 5 statuses, 3 priorities, every other table empty; no other database touched.
+- Docs updated: `ARCHITECTURE.md` (Database: tables, naming, integrity, domain values, lifecycle, drop-and-create, tests), `CONSTRAINTS.md` (status/priority storage rule replaced), `docs/domain-model.md` (Status and Priority concepts, fixed ids, transitions enforced by the API), `docs/technical-discovery.md` (Data and Storage sentence).
+- Not changed (per spec): `init.sh`, `AGENTS.md`, `tests/lib/db.php`. Their "drop-and-create, deletes all rows" wording is now slightly imprecise (the fixed lookup rows are re-inserted); harmless, left for a later doc pass.
+- Status: `passing`, ready for independent validation. Next best step after acceptance: `db-seed-data` (L3 rows must use `default_priority_id` 1-3).
+
+#### db-schema change request acceptance (validator, 2026-11-27)
+
+- Independent validation of the change request (statuses/priorities lookup tables): **accept**. Re-ran `./init.sh` (16 files 0 syntax errors, 31 tests 0 failures, gate passed); applied `db/schema.sql` twice via mysql client (OK/OK, 12 tables); lookup rows and `En resolución` hex exact; only 5 CHECKs; 4 RESTRICT FKs. Probes: priority FK 1452 with a valid L2, history status 6 -> 1452, look-alikes -> 1062, deleting referenced lookup rows -> 1451. `php tests/run.php db` 11/0. Scope, secrets and cleanup checked; only `hm_db_schema` touched.
+- Nits left: `)ENGINE` missing space in `level3_typologies`; "deletes all rows" wording in `init.sh`/`AGENTS.md` ignores the re-inserted lookup rows.
+- Status set to `accepted`. Next best step: `db-seed-data` (L3 rows use `default_priority_id` 1-3; do not write to `statuses`/`priorities`).

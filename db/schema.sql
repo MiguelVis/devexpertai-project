@@ -5,12 +5,18 @@
 -- Format rule (tests/lib/db.php splits this file): every statement ends with a semicolon at the
 -- end of a line, comments are full lines starting with two dashes, no semicolons inside comments
 -- or string literals, no DELIMITER.
--- Status and priority are stored as the exact Spanish values of CONTEXT.md and enforced by CHECK
--- constraints (the server sql_mode is not strict, so ENUM would silently store an empty string).
--- The CHECKs compare bytes with CAST(col AS BINARY) because the table collation
--- utf8mb4_unicode_ci is case- and accent-insensitive (it would accept 'pendiente' or
--- 'En resolucion') and even utf8mb4_bin ignores trailing spaces on MariaDB 10.4 (PAD SPACE,
--- it would accept 'Pendiente ').
+-- Status and priority live in the lookup tables statuses and priorities. Their rows are fixed
+-- domain values (exact Spanish names of CONTEXT.md) with fixed ids that the seed and the API rely
+-- on. This file is the only writer of those rows: it inserts them right after creating each table.
+-- work_orders.status_id, work_orders.priority_id, work_order_status_history.status_id and
+-- level3_typologies.default_priority_id are integer foreign keys to them. Foreign keys and NOT NULL
+-- hold regardless of the non-strict server sql_mode. Application code refers to them by id.
+-- The name columns keep the table collation utf8mb4_unicode_ci on purpose: it is case-, accent-
+-- and trailing-space-insensitive, so the unique index rejects look-alikes such as 'pendiente',
+-- 'En resolucion' or 'Pendiente ' (a binary collation would let them coexist).
+-- Status transition rules are not in the database: the API enforces them in PHP.
+-- Tables are dropped in reverse dependency order, so the order is right even without the
+-- FOREIGN_KEY_CHECKS wrapper.
 
 SET NAMES utf8mb4;
 
@@ -25,7 +31,42 @@ DROP TABLE IF EXISTS level2_typologies;
 DROP TABLE IF EXISTS level1_typologies;
 DROP TABLE IF EXISTS locations;
 DROP TABLE IF EXISTS location_types;
+DROP TABLE IF EXISTS priorities;
+DROP TABLE IF EXISTS statuses;
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- Work order statuses: fixed rows, ids equal sort_order. is_closed is 1 only for Resuelto and
+-- Cancelado (data for the API, not a database rule).
+CREATE TABLE statuses (
+    id INT UNSIGNED NOT NULL PRIMARY KEY,
+    name VARCHAR(20) NOT NULL,
+    is_closed TINYINT(1) NOT NULL,
+    sort_order INT UNSIGNED NOT NULL,
+    CONSTRAINT uq_statuses_name UNIQUE (name),
+    CONSTRAINT uq_statuses_sort_order UNIQUE (sort_order),
+    CONSTRAINT chk_statuses_is_closed CHECK (is_closed IN (0, 1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO statuses (id, name, is_closed, sort_order) VALUES
+    (1, 'Pendiente', 0, 1),
+    (2, 'Asignado', 0, 2),
+    (3, 'En resolución', 0, 3),
+    (4, 'Resuelto', 1, 4),
+    (5, 'Cancelado', 1, 5);
+
+-- Work order priorities: fixed rows, ids equal sort_order.
+CREATE TABLE priorities (
+    id INT UNSIGNED NOT NULL PRIMARY KEY,
+    name VARCHAR(10) NOT NULL,
+    sort_order INT UNSIGNED NOT NULL,
+    CONSTRAINT uq_priorities_name UNIQUE (name),
+    CONSTRAINT uq_priorities_sort_order UNIQUE (sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO priorities (id, name, sort_order) VALUES
+    (1, 'Baja', 1),
+    (2, 'Media', 2),
+    (3, 'Alta', 3);
 
 -- Location types (e.g. Habitación, Zona común, Zona técnica).
 CREATE TABLE location_types (
@@ -65,12 +106,13 @@ CREATE TABLE level3_typologies (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     level2_typology_id INT UNSIGNED NOT NULL,
     name VARCHAR(100) NOT NULL,
-    default_priority VARCHAR(10) NOT NULL,
+    default_priority_id INT UNSIGNED NOT NULL,
     CONSTRAINT uq_level3_typologies_parent_name UNIQUE (level2_typology_id, name),
-    CONSTRAINT chk_level3_typologies_default_priority CHECK (CAST(default_priority AS BINARY) IN ('Baja', 'Media', 'Alta')),
     CONSTRAINT fk_level3_typologies_level2_typology_id FOREIGN KEY (level2_typology_id)
-        REFERENCES level2_typologies (id) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        REFERENCES level2_typologies (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT fk_level3_typologies_default_priority_id FOREIGN KEY (default_priority_id)
+        REFERENCES priorities (id) ON DELETE RESTRICT ON UPDATE RESTRICT
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Users: technicians and the MCP service account (is_service_account = 1).
 CREATE TABLE users (
@@ -104,15 +146,16 @@ CREATE TABLE work_orders (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     creator_user_id INT UNSIGNED NOT NULL,
     assignee_user_id INT UNSIGNED NULL,
-    status VARCHAR(20) NOT NULL,
+    status_id INT UNSIGNED NOT NULL,
     location_id INT UNSIGNED NOT NULL,
     level3_typology_id INT UNSIGNED NOT NULL,
-    priority VARCHAR(10) NOT NULL,
+    priority_id INT UNSIGNED NOT NULL,
     description TEXT NOT NULL,
     INDEX ix_work_orders_created_at (created_at),
-    INDEX ix_work_orders_status (status),
-    CONSTRAINT chk_work_orders_status CHECK (CAST(status AS BINARY) IN ('Pendiente', 'Asignado', 'En resolución', 'Resuelto', 'Cancelado')),
-    CONSTRAINT chk_work_orders_priority CHECK (CAST(priority AS BINARY) IN ('Baja', 'Media', 'Alta')),
+    CONSTRAINT fk_work_orders_status_id FOREIGN KEY (status_id)
+        REFERENCES statuses (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT fk_work_orders_priority_id FOREIGN KEY (priority_id)
+        REFERENCES priorities (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT fk_work_orders_creator_user_id FOREIGN KEY (creator_user_id)
         REFERENCES users (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT fk_work_orders_assignee_user_id FOREIGN KEY (assignee_user_id)
@@ -127,13 +170,14 @@ CREATE TABLE work_orders (
 CREATE TABLE work_order_status_history (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     work_order_id INT UNSIGNED NOT NULL,
-    status VARCHAR(20) NOT NULL,
+    status_id INT UNSIGNED NOT NULL,
     changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     changed_by_user_id INT UNSIGNED NOT NULL,
     INDEX ix_work_order_status_history_order (work_order_id, changed_at, id),
-    CONSTRAINT chk_work_order_status_history_status CHECK (CAST(status AS BINARY) IN ('Pendiente', 'Asignado', 'En resolución', 'Resuelto', 'Cancelado')),
     CONSTRAINT fk_work_order_status_history_work_order_id FOREIGN KEY (work_order_id)
         REFERENCES work_orders (id) ON DELETE CASCADE ON UPDATE RESTRICT,
+    CONSTRAINT fk_work_order_status_history_status_id FOREIGN KEY (status_id)
+        REFERENCES statuses (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT fk_work_order_status_history_changed_by_user_id FOREIGN KEY (changed_by_user_id)
         REFERENCES users (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
