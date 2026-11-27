@@ -5,6 +5,7 @@ description: Calm, operational, mobile-first tool built on W3.CSS, styled after 
 designAssets:
   sourceOfTruth: []
   layoutReference: "docs/design/stitch/ (mobile/ and desktop/ PNG exports, ui-styles.png)"
+  brand: "public/assets/img/brand/ (favicon.png, logo-mark.png, logo-white.png, logo.png)"
   generatedConcepts: []
 colors:
   primary: "#009688"        # Stitch primary. Bars and dialog headers only, with large bold white text (3.67:1)
@@ -116,9 +117,9 @@ Source Sans 3, hosted locally (`assets/css/fonts.css`), with the system font sta
 
 ## Layout
 
-- **Mobile (< 993px):** a primary-coloured top bar with the menu toggle, the brand ("MaintOps AI", with the hotel name "Demo Hotel" below in small caps) and the user's initials in a round avatar. The side menu opens over the content (`99-sidebar-menu.png`).
+- **Mobile (< 993px):** a primary-coloured top bar with the menu toggle, the brand (`logo-mark.png` at 32px, then "MaintOps AI" with the hotel name "Demo Hotel" below in small caps) and the user's initials in a round avatar. The side menu opens over the content (`99-sidebar-menu.png`).
 - **Desktop (≥ 993px):** a persistent sidebar on the left (brand header in primary, menu items, "Cerrar sesión" at the bottom) and a neutral top bar showing the user's initials avatar and full name.
-- **Side menu:** brand header (with a close button on mobile), user block (initials avatar and full name), then "Dashboard" (`space_dashboard`) and "Partes de trabajo" (`assignment`). The active item has a left bar in `primaryStrong` and a `primaryTint` background. "Cerrar sesión" (`logout`) sits at the bottom in the danger colour. Creating work orders is done from the list's "Nuevo parte" button and the AI button, not from the menu.
+- **Side menu:** brand header (`logo-mark.png`, "MaintOps AI" and "Demo Hotel" below in small caps, with a close button on mobile), user block (initials avatar and full name), then "Dashboard" (`space_dashboard`) and "Partes de trabajo" (`assignment`). The active item has a left bar in `primaryStrong` and a `primaryTint` background. "Cerrar sesión" (`logout`) sits at the bottom in the danger colour. Creating work orders is done from the list's "Nuevo parte" button and the AI button, not from the menu.
 - **Content width:** dashboard and list use the full content width. Forms, dialogs and the detail screen are at most about 720px wide.
 - **Dialogs** (`w3-modal`): forms 5a, 5b and 6 and the status history open as dialogs over the current screen, with a primary header (icon, title in uppercase, close `close` button) and the actions in a light footer ("Cancelar" secondary, main action primary). On mobile they take almost the whole width.
 - **Floating AI button:** bottom-right on the **dashboard and the work order list**, as a pill with `auto_awesome` and "Nuevo con IA". Not on the detail screen or inside dialogs.
@@ -139,6 +140,17 @@ Source Sans 3, hosted locally (`assets/css/fonts.css`), with the system font sta
 - **Loading state** for AI Prefill: a disabled "Enviar" button with a spinner and the text "Analizando…". It must handle about 15 seconds without looking frozen.
 - **Errors:** a `w3-panel` in the danger colour at the top of the form or dialog.
 
+## Brand
+
+The hotel brand (navy building with a star, "Demo Hotel") lives in `public/assets/img/brand/` as transparent PNGs, exported at about 2× their display size. Use them as files; don't recolour, crop or redraw them in CSS. In HTML, set `width` and `height` to the displayed size and give each logo `alt="Demo Hotel"` (the favicon needs none).
+
+| File | Size | Where | Display size |
+| --- | --- | --- | --- |
+| `favicon.png` | 180×180 | Browser tab and iPhone home-screen icon, in every page's `<head>`: `<link rel="icon" type="image/png" href="assets/img/brand/favicon.png">` and `<link rel="apple-touch-icon" href="assets/img/brand/favicon.png">` (relative URLs; no root `/favicon.ico`) | — |
+| `logo-mark.png` | 330×313 | Navy square tile. Mobile top bar and sidebar brand header, left of "MaintOps AI" | 32px tall |
+| `logo-white.png` | 714×374 | White stacked logo for teal backgrounds. Login card header | about 96px tall |
+| `logo.png` | 714×374 | Navy stacked logo for white backgrounds. Not placed on any screen yet; use it wherever the brand appears on a white surface | — |
+
 ## Icons
 
 - Use [Material Symbols](https://fonts.google.com/icons) **Outlined** (unfilled, weight 400), hosted locally. Link `assets/css/icons.css` on any page that shows icons. Never load the font from Google Fonts.
@@ -149,7 +161,7 @@ Source Sans 3, hosted locally (`assets/css/fonts.css`), with the system font sta
 
 ## Core Screens
 
-1. **Login** (Stitch `01-login.png`): a centred card. Primary header with a round white badge holding the `bed` icon, "MaintOps AI - Demo Hotel" and the subtitle "Portal de Operaciones y Mantenimiento Hotelero". Fields "Usuario" and "Contraseña" (with a show/hide button, `visibility`), and a full-width "Iniciar sesión" button (`login`). Bad credentials show an error panel above the fields. No password recovery link and no version footer.
+1. **Login** (Stitch `01-login.png`): a centred card. Primary header with the white stacked hotel logo (`logo-white.png`, about 96px tall, `alt="Demo Hotel"`), then "MaintOps AI" and the subtitle "Portal de Operaciones y Mantenimiento Hotelero". Fields "Usuario" and "Contraseña" (with a show/hide button, `visibility`), and a full-width "Iniciar sesión" button (`login`). Bad credentials show an error panel above the fields. No password recovery link and no version footer.
 2. **Dashboard (home)** (Stitch `02-dashboard.png` for the look): two groups of tiles, "Por estado" (one tile per status with its count, all five) and "Abiertos por prioridad" (Alta, Media, Baja, counting open work orders). Two-column tile grid at 360px; on desktop, status tiles share one row and priority tiles another. The floating AI button is shown. No recent activity list.
 3. **Work order list** (Stitch `03-work-order-list.png`): a header with the title "Partes", a count badge and a "Nuevo parte" button (`add`, opens the empty 5b form). Cards on mobile, a table on desktop, newest first, with the row actions above. The floating AI button is shown. No search, filters, sorting or pagination in the PoC.
 4. **Work order detail:** no full Stitch screen. Show every field in the order of the 5b form, read-only, with the full description, then the status history (Stitch `04-work-order-detail.png` style). An "Editar" button opens form 6 for open orders. The history dialog from the list's "Histórico" button reuses the same history component.
@@ -177,4 +189,3 @@ Every input has a `<label>`. Status and priority are always shown as text. WCAG 
 ## Open Design Questions
 
 - UI language is assumed to be Spanish only.
-- Logo: none provided. The login badge uses the `bed` icon and the brand header uses `build` (as in Stitch) until a logo exists.

@@ -11,6 +11,7 @@ public/                  web root: the ONLY folder served over HTTP
   assets/vendor/w3css/   vendored, unmodified W3.CSS 5.01 + SOURCE.txt
   assets/vendor/material-symbols/  vendored, unmodified Material Symbols Outlined font + LICENSE + SOURCE.txt
   assets/vendor/source-sans-3/     vendored, unmodified Source Sans 3 (latin, variable weight) + OFL.txt + SOURCE.txt
+  assets/img/brand/      hotel brand PNGs (favicon, logo-mark, logo-white, logo); project-owned, see DESIGN.md Brand
   assets/css/icons.css   @font-face + .material-symbols-outlined class for the local icon font
   assets/css/fonts.css   @font-face for the local Source Sans 3 text font
 src/                     PHP application code, namespace App\ -> src/

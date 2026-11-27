@@ -75,3 +75,10 @@
 - Verification: `./init.sh` exit 0, 13 files, 20 tests, 0 failures. Contrast ratios computed for every token pairing (all text pairings >= 4.5:1; white on `#009688` is 3.67:1, so it is limited to large bold text).
 - Side menu has only Dashboard and Partes de trabajo, as in Stitch; work orders are created from the list's "Nuevo parte" and the AI button (confirmed by the user). Hotel name: "Demo Hotel" (user decision; replaces the Stitch placeholder "Grand Hotel").
 - Next best step: unchanged, `db-schema`.
+
+### Session 003c (design: hotel brand)
+
+- Date: 2026-11-27
+- Added `public/assets/img/brand/` (user-supplied PNGs): `favicon.png` 180×180, `logo-mark.png` 330×313 (navy tile), `logo-white.png` 714×374 (white stacked, for teal), `logo.png` 714×374 (navy stacked, for white). Checked: transparent backgrounds, no stray marks (the first `logo.png` had a red smudge and the first `logo-white.png` was navy; both replaced by the user), white logo rendered on `#009688` and verified visually.
+- `DESIGN.md`: new Brand section (placement, display sizes, `alt`, relative favicon links); login header and brand header use the logos; "Logo" open question closed. `ARCHITECTURE.md` layout updated.
+- Verification: `./init.sh` exit 0, 13 files, 20 tests, 0 failures. Next best step unchanged: `db-schema`.
