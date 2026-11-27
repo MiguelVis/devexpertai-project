@@ -24,10 +24,11 @@ Before writing code:
 1. Confirm the working directory with `pwd`.
 2. Read `PROGRESS.md` for the current verified state and the next step.
 3. Read `feature_list.json` and pick the first unfinished feature, in list order, whose `depends_on` features are all `accepted` (`passing` means self-verified only; acceptance comes from the independent validator).
-4. Run `./init.sh` (Git Bash on Windows). It is the real gate: PHP syntax check of all project files plus `php tests/run.php`; it exits non-zero on any failure and starts no long-running process.
-5. If baseline verification fails, fix the baseline before adding new feature work.
-6. If `config/config.php` is missing (the gate warns), copy `config/config.example.php` to it and fill in local values. It is git-ignored.
-7. To see the app: `php -S 127.0.0.1:8080 -t public` and open `http://127.0.0.1:8080/`. XAMPP Apache serves it at `http://localhost/devexpertai/` once the snippet in `config/apache.conf.example` is included (manual step).
+4. If `config/config.php` is missing (the gate warns), copy `config/config.example.php` to it and fill in local values. It is git-ignored.
+5. Database: once `config/config.php` names a `hm_*` database in `db.name`, the gate needs that database to exist: the live DB tests fail with `Unknown database` until it is created. Once per worktree, create it: `/c/xampp/mysql/bin/mysql.exe --defaults-extra-file=config/mysql.cnf -e "CREATE DATABASE IF NOT EXISTS hm_<feature> CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"`. The tests apply the schema themselves; to use the app, apply it with `/c/xampp/mysql/bin/mysql.exe --defaults-extra-file=config/mysql.cnf hm_<feature> < db/schema.sql` (drop-and-create, deletes all rows). Never use another worktree's database or `hotel_maintenance` (see `ARCHITECTURE.md` Database).
+6. Run `./init.sh` (Git Bash on Windows). It is the real gate: PHP syntax check of all project files plus `php tests/run.php`; it exits non-zero on any failure and starts no long-running process.
+7. If baseline verification fails, fix the baseline before adding new feature work.
+8. To see the app: `php -S 127.0.0.1:8080 -t public` and open `http://127.0.0.1:8080/`. XAMPP Apache serves it at `http://localhost/devexpertai/` once the snippet in `config/apache.conf.example` is included (manual step).
 
 ## Working Rules
 

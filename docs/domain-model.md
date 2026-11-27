@@ -7,11 +7,13 @@
 | User | username, password hash, first name, last names, is service account |
 | Work Order | created at, creator, assignee (optional), status, location, typology L1/L2/L3, priority, description |
 | Status History Entry | work order, timestamp, status, user who caused it |
+| Status | name, is closed, sort order |
+| Priority | name, sort order |
 | Typology L1 / L2 / L3 | name, parent (L2 → L1, L3 → L2); L3 also has a default priority |
 | Location | name, location type |
 | Location Type | name: Habitación, Zona común, Establecimiento |
 
-Priority values: Baja, Media, Alta. Status values: Pendiente, Asignado, En resolución, Resuelto, Cancelado.
+Priority values: Baja, Media, Alta. Status values: Pendiente, Asignado, En resolución, Resuelto, Cancelado (closed: Resuelto, Cancelado). Statuses and priorities are fixed reference data with stable ids (statuses 1–5 and priorities 1–3, in the order listed), defined by the schema rather than the seed. A work order's status and priority, a status history entry's status and an L3 typology's default priority each reference one of them.
 
 ## Relationships
 
@@ -38,6 +40,7 @@ Pendiente ─────────▶ Asignado ─────────▶
 - **Cancelado:** reachable from any non-closed status.
 - **Closed (Resuelto, Cancelado):** final; the work order can no longer be edited.
 - Every status change, including the initial one, writes a status history entry.
+- These transition rules are enforced by the API (PHP), not by the database; the database only guarantees that a status or priority exists.
 - Priority is prefilled from the L3 typology's default priority whenever the L3 is chosen or changed. The user can override it when creating or editing.
 
 ## Important Scenarios

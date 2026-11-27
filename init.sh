@@ -42,11 +42,27 @@ if [ "$syntax_failures" -ne 0 ]; then
   exit 1
 fi
 
-# 3. Tests (exit code propagates through set -e).
+# Database hint, printed before the tests (so it is visible if they fail) and again at the end.
+print_db_hint() {
+  echo "  - database:    once per worktree, with DB = db.name from config/config.php (must start with hm_):"
+  echo "                 /c/xampp/mysql/bin/mysql.exe --defaults-extra-file=config/mysql.cnf -e \"CREATE DATABASE IF NOT EXISTS DB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci\""
+  echo "                 (the live DB tests apply the schema themselves; to use the app also run:)"
+  echo "                 /c/xampp/mysql/bin/mysql.exe --defaults-extra-file=config/mysql.cnf DB < db/schema.sql   (drop-and-create, deletes all rows)"
+}
+
+# 3. Local config (warning only; the gate does not need it). With a config whose db.name is a
+#    hm_* database, the live DB tests need that database to exist ("Unknown database" otherwise).
+if [ ! -f config/config.php ]; then
+  echo "WARNING: config/config.php is missing. Copy config/config.example.php to config/config.php and fill in the values."
+else
+  echo "NOTE: live DB tests need the hm_* database named in config/config.php to exist; they fail with 'Unknown database' until it is created:"
+  print_db_hint
+fi
+
+# 4. Tests (exit code propagates through set -e).
 echo "== Tests =="
 php tests/run.php
 
-# 4. Local config (warning only; the gate does not need it).
 if [ ! -f config/config.php ]; then
   echo "WARNING: config/config.php is missing. Copy config/config.example.php to config/config.php and fill in the values."
 fi
@@ -56,4 +72,4 @@ echo "== Gate passed =="
 echo "Manual follow-ups:"
 echo "  - dev server:  php -S 127.0.0.1:8080 -t public   (then open http://127.0.0.1:8080/)"
 echo "  - XAMPP:       http://localhost/devexpertai/   (after the Include step in config/apache.conf.example)"
-echo "  - database:    commands arrive with feature 'db-schema'"
+print_db_hint
