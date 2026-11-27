@@ -68,6 +68,6 @@ Serving (decided in `bootstrap-project-skeleton`, see `ARCHITECTURE.md`): only `
 
 ## Constraints
 
-- No dependencies beyond W3.CSS: the HTTP client (cURL extension), the JSON-RPC and MCP handling, and routing are all hand-written.
+- No dependencies beyond W3.CSS and the vendored Material Symbols icon font (approved 2026-11-27): the HTTP client (cURL extension), the JSON-RPC and MCP handling, and routing are all hand-written.
 - The `proc_open` subprocess handling for the stdio MCP has to work on Windows (XAMPP PHP).
 - DevExpert keys expire and have a weekly quota, so evaluation runs consume that quota.

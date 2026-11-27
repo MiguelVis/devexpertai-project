@@ -19,7 +19,7 @@ Hotel maintenance staff (technicians and managers) working mostly from mobile de
 - Create a valid work order from a free-text description, with location, typology L1/L2/L3 and assignee prefilled by AI and reviewed by the user.
 - Ground the AI in real hotel data through the project's own MCP server, never through invented values.
 - Stay provider-agnostic: switching LLM provider is configuration only.
-- Run locally on Windows with XAMPP, with no frameworks or libraries beyond W3.CSS.
+- Run locally on Windows with XAMPP, with no frameworks or libraries beyond W3.CSS (plus the locally hosted Material Symbols icon font, approved 2026-11-27).
 
 ## Non-Goals
 

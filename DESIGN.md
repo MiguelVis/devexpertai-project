@@ -45,6 +45,14 @@ components:
     backgroundColor: "{colors.accent}"
     textColor: "#ffffff"
     size: 56px
+icons:
+  family: "Material Symbols Outlined"
+  source: "public/assets/vendor/material-symbols/MaterialSymbolsOutlined.woff2 (local, no CDN)"
+  stylesheet: "assets/css/icons.css"
+  class: "material-symbols-outlined"
+  fill: 0
+  weight: 400
+  size: 24px
 ---
 
 # Design Direction
@@ -89,6 +97,14 @@ System font stack, 16px base (stops iOS zooming into inputs), with a single head
 - **Loading state** for AI Prefill: a disabled submit button with a spinner and the text "Analizando…". It must handle about 15 seconds without looking frozen.
 - **Errors:** a `w3-panel` in the danger colour at the top of the form.
 
+## Icons
+
+- Use [Material Symbols](https://fonts.google.com/icons) **Outlined** (unfilled, weight 400), hosted locally. Link `assets/css/icons.css` on any page that shows icons. Never load the font from Google Fonts.
+- Markup: `<span class="material-symbols-outlined" aria-hidden="true">edit</span>`. The text is the icon name from fonts.google.com/icons.
+- Icons support text and never replace it, except in compact icon buttons. An icon-only button needs an `aria-label` in Spanish (for example `aria-label="Editar"`) and a 44px touch target.
+- Colour follows the surrounding text or button. Colour still carries meaning only through status and priority tags, never through the icon alone.
+- Filled icons and other weights are not available in the vendored file. See its `SOURCE.txt` before changing that.
+
 ## Core Screens
 
 1. Login
@@ -110,7 +126,7 @@ Every input has a `<label>`. Status and priority are always shown as text. WCAG 
 
 - Do use W3.CSS utility classes before writing custom CSS.
 - Do keep JavaScript limited to the menu toggle, cascading selects, the AI request and form submission.
-- Don't add icon fonts or other libraries. Use text or inline SVG.
+- Don't add other icon sets, fonts or libraries. Material Symbols Outlined (local) is the only icon source.
 - Don't style AI-prefilled values as final. The user must see what to review.
 
 ## Open Design Questions

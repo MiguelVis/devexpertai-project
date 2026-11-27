@@ -9,6 +9,8 @@ public/                  web root: the ONLY folder served over HTTP
   index.html             frontend entry page (placeholder for now)
   api/index.php          API entry point (placeholder JSON; routing arrives with api-post-json-router)
   assets/vendor/w3css/   vendored, unmodified W3.CSS 5.01 + SOURCE.txt
+  assets/vendor/material-symbols/  vendored, unmodified Material Symbols Outlined font + LICENSE + SOURCE.txt
+  assets/css/icons.css   @font-face + .material-symbols-outlined class for the local icon font
 src/                     PHP application code, namespace App\ -> src/
   bootstrap.php          APP_ROOT, error settings, App\ autoloader
   Config.php             App\Config: loads config/config.php

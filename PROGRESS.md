@@ -10,7 +10,7 @@
 - Last accepted feature: `bootstrap-project-skeleton` (independent validator, 2026-11-17).
 - Current next ready feature: `db-schema`
 - Current blocker: none
-- Last verified at: 2026-11-17 (`./init.sh` exit 0, 10 PHP files, 14 tests, 0 failures)
+- Last verified at: 2026-11-27 (`./init.sh` exit 0, 12 PHP files, 17 tests, 0 failures)
 
 ## Session Log
 
@@ -55,3 +55,13 @@
 - W3.CSS SHA-256 `702af7dd...143c0` matches `SOURCE.txt` and a fresh upstream download; vendor `-text` rule justified (`core.autocrlf=true` would break the hash).
 - Not done: 360px visual check. Judged non-material for a stock W3.CSS placeholder; do it with the first `ui-*` feature.
 - Low notes (non-blocking): runner prints no FAIL line when a test file throws at load time (the gate still fails); free-port race in the dev_server helper.
+
+### Session 003 (design change, no feature)
+
+- Date: 2026-11-27
+- Goal: User-approved design change: use Google Material Symbols for icons, hosted locally (exception to "no dependencies beyond W3.CSS").
+- Completed: vendored `public/assets/vendor/material-symbols/MaterialSymbolsOutlined.woff2` (static Outlined, FILL 0 / wght 400, matches the Stitch designs; 325,336 B, SHA-256 `c596b364...6312`) + `LICENSE` (Apache 2.0) + `SOURCE.txt`; `public/assets/css/icons.css` (`@font-face`, `font-display: block`, `.material-symbols-outlined`); `tests/bootstrap/icons_test.php` (3 tests: SHA matches SOURCE.txt, relative URL and no Google URLs in icons.css, `php -S` serves css + font).
+- Verification: `./init.sh` exit 0, 12 files, 17 tests, 0 failures. Content type `font/woff2` from both `php -S` and XAMPP Apache (`/devexpertai/...` 200, 325,336 B).
+- Docs updated: `DESIGN.md` (`icons` tokens, Icons section, Don'ts), `CONSTRAINTS.md` (icon rule), `AGENTS.md`, `ARCHITECTURE.md`, `docs/build-brief.md`, `docs/technical-discovery.md`.
+- Not done: no page uses icons yet (the first `ui-*` feature links `assets/css/icons.css`); Stitch PNGs in `docs/design/stitch/` are untracked and not yet referenced from `DESIGN.md`.
+- Next best step: unchanged, `db-schema`.
