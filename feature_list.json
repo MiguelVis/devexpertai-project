@@ -441,7 +441,7 @@
       "Manual at 360px: changing L1 resets L2/L3; choosing L3 sets priority; saving shows the order with the correct status"
     ],
     "evidence": [],
-    "notes": "The form is reused by the AI flow."
+    "notes": "The form is reused by the AI flow and by edit. DESIGN.md core screen 5b (Stitch 05-new-work-order.png): dialog form, no status field on create, no attachments."
   },
   {
     "id": "ui-ai-prefill",
@@ -458,7 +458,7 @@
       "Manual: unknown room shows a blank location with a note"
     ],
     "evidence": [],
-    "notes": "Completes the MVP slice in docs/build-brief.md."
+    "notes": "Completes the MVP slice in docs/build-brief.md. DESIGN.md core screen 5a (Stitch 05-new-work-order-with-ai.png): description dialog with Enviar, then the 5b form prefilled."
   },
   {
     "id": "api-update-work-order",
@@ -489,7 +489,7 @@
       "Manual at 360px: edit status and assignee of an open order; closed order offers no edit"
     ],
     "evidence": [],
-    "notes": "Only valid next statuses are offered."
+    "notes": "Only valid next statuses are offered. DESIGN.md core screen 6: no Stitch screen; reuses the 5b form titled Editar parte."
   },
   {
     "id": "api-logout",

@@ -63,7 +63,12 @@ A practical tool for staff on the move. It should be fast to read on a phone and
 
 ## Existing Design Assets
 
-None. This document is the source of truth.
+Stitch screen exports (PNG) live in `docs/design/stitch/` (`mobile/` and `desktop/`). They are the visual reference for layout. This document wins whenever a screen conflicts with it, and product rules from `docs/build-brief.md` and `docs/domain-model.md` always win over a screen.
+
+| Image (mobile and desktop) | Screen | Notes |
+| --- | --- | --- |
+| `05-new-work-order-with-ai.png` | 5a. AI description dialog | |
+| `05-new-work-order.png` | 5b. Work order form (create; reused for edit) | Ignore the "Adjuntos" block and the create-time "Estado" select (see Core Screens) |
 
 ## Product Feel
 
@@ -92,7 +97,7 @@ System font stack, 16px base (stops iOS zooming into inputs), with a single head
 ## Components
 
 - **Work order card (list):** location, L3 typology, status tag, priority tag, assignee, created date.
-- **Work order form:** description (textarea) at the top. Then location, L1 → L2 → L3 cascaded selects, priority (set from the L3 default when L3 changes, editable), assignee, and status (edit only).
+- **Work order form:** one form for create (manual and AI) and edit, shown as a dialog over the current screen (`w3-modal`, header in the primary colour, "Cancelar" and "Guardar" in the footer). Fields in the Stitch order: L1 → L2 → L3 cascaded selects, location, priority (set from the L3 default when L3 changes, editable), assignee, status (edit only), and the description (textarea) at the bottom. One column at 360px, two columns on wide screens (as in the Stitch desktop export).
 - **AI-prefilled fields:** a left border in the accent colour and an "IA" label. A **prefill note** appears below a blank field in muted text.
 - **Loading state** for AI Prefill: a disabled submit button with a spinner and the text "Analizando…". It must handle about 15 seconds without looking frozen.
 - **Errors:** a `w3-panel` in the danger colour at the top of the form.
@@ -111,8 +116,10 @@ System font stack, 16px base (stops iOS zooming into inputs), with a single head
 2. Dashboard (home): one tile per status with its count, and one per priority (Alta, Media, Baja) counting open work orders. Status and priority tag colours, number plus text label. Two-column tile grid at 360px.
 3. Work order list (with the floating AI button)
 4. Work order detail
-5. New work order: manual, or AI (description first, then the prefilled form to review)
-6. Edit work order (closed orders are shown read-only)
+5. New work order, in two steps for AI and one step for manual:
+   - **5a. AI description dialog** (Stitch `05-new-work-order-with-ai.png`): a small dialog titled "Nuevo parte con IA" with a single "Descripción del parte" textarea, "Cancelar" and "Enviar". "Enviar" requests AI Prefill and shows the loading state ("Analizando…") inside this dialog. On success it closes and opens 5b with the AI values. On error it stays open with the description kept and an error panel. Opened from the floating AI button on the list screen or from the menu. Ignore the "Asistente activo" microphone label in the export: voice input is a non-goal.
+   - **5b. Work order form, create** (Stitch `05-new-work-order.png`): the Work order form titled "Nuevo parte". In the AI flow it opens prefilled: the description from 5a, AI-prefilled fields highlighted and prefill notes on blank fields. The manual flow opens it empty. Status is not a field here: it is set on save (Asignado with an assignee, otherwise Pendiente). Attachments are a non-goal, so there is no "Adjuntos" block.
+6. Edit work order: no Stitch screen. Reuse the 5b form, titled "Editar parte", filled with the order's current values and no AI highlights. Status is shown as a select offering only the valid next statuses. Fields that are not editable (see `api-update-work-order`) are shown read-only. Closed orders (Resuelto, Cancelado) offer no edit; their detail screen is read-only.
 
 ## Responsive Baseline
 
