@@ -112,7 +112,7 @@ CREATE TABLE level3_typologies (
         REFERENCES level2_typologies (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT fk_level3_typologies_default_priority_id FOREIGN KEY (default_priority_id)
         REFERENCES priorities (id) ON DELETE RESTRICT ON UPDATE RESTRICT
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Users: technicians and the MCP service account (is_service_account = 1).
 CREATE TABLE users (
